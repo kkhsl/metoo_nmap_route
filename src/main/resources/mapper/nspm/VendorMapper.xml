@@ -6,11 +6,12 @@
         <id column="id" property="id"></id>
         <result column="addTime" property="addTime"></result>
         <result column="name" property="name"></result>
+        <result column="name_en" property="nameEn"></result>
         <result column="index" property="index"></result>
     </resultMap>
 
     <sql id="Base_Column_list">
-        id, addTime, deleteStatus, `name`, index
+        id, addTime, deleteStatus, `name`, index, name_en
     </sql>
 
     <select id="selectObjById"  parameterType="java.lang.Long" resultMap="Base_Result_Map">

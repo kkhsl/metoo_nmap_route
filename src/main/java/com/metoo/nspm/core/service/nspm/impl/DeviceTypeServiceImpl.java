@@ -52,6 +52,11 @@ public class DeviceTypeServiceImpl implements IDeviceTypeService {
     }
 
     @Override
+    public List<DeviceType> selectDeviceTypeAndTerminalByJoin() {
+        return this.deviceTypeMapper.selectDeviceTypeAndTerminalByJoin();
+    }
+
+    @Override
     public List<DeviceType> selectCountByJoin() {
         return this.deviceTypeMapper.selectCountByJoin();
     }
@@ -59,6 +64,26 @@ public class DeviceTypeServiceImpl implements IDeviceTypeService {
     @Override
     public List<DeviceType> selectDeviceTypeAndNeByJoin() {
         return this.deviceTypeMapper.selectDeviceTypeAndNeByJoin();
+    }
+
+    @Override
+    public List<DeviceType> selectTerminalCountByJoin() {
+        return this.deviceTypeMapper.selectTerminalCountByJoin();
+    }
+
+    @Override
+    public List<DeviceType> selectNeByType(Integer type) {
+        return this.deviceTypeMapper.selectNeByType(type);
+    }
+
+    @Override
+    public List<DeviceType> selectNeSumByType(Map params) {
+        return this.deviceTypeMapper.selectNeSumByType(params);
+    }
+
+    @Override
+    public List<DeviceType> selectTerminalSumByType(Map params) {
+        return this.deviceTypeMapper.selectTerminalSumByType(params);
     }
 
     @Override

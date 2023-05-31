@@ -23,7 +23,16 @@ public interface DeviceTypeMapper {
 
     List<DeviceType> selectCountByJoin();
 
+    List<DeviceType> selectDeviceTypeAndTerminalByJoin();
+
     List<DeviceType> selectDeviceTypeAndNeByJoin();
+
+    List<DeviceType> selectNeSumByType(Map params);
+
+    List<DeviceType> selectNeByType(Integer type);
+    List<DeviceType> selectTerminalCountByJoin();
+
+    List<DeviceType> selectTerminalSumByType(Map params);
 
     List<DeviceTypeVO> statistics();
 

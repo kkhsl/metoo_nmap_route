@@ -27,4 +27,6 @@ public interface NetworkElementMapper {
     int update(NetworkElement instance);
 
     int del(Long id);
+
+    NetworkElement selectAccessoryByUuid(String uuid);
 }

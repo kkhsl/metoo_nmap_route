@@ -20,9 +20,19 @@ public interface IDeviceTypeService {
 
     List<DeviceType> selectCountByLeftJoin();
 
+    List<DeviceType> selectDeviceTypeAndTerminalByJoin();
+
     List<DeviceType> selectCountByJoin();
 
     List<DeviceType> selectDeviceTypeAndNeByJoin();
+
+    List<DeviceType> selectTerminalCountByJoin();
+
+    List<DeviceType> selectNeByType(Integer type);
+
+    List<DeviceType> selectNeSumByType(Map params);
+
+    List<DeviceType> selectTerminalSumByType(Map params);
 
     List<DeviceTypeVO> statistics();
 

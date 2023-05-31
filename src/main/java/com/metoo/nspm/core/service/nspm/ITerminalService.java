@@ -34,4 +34,7 @@ public interface ITerminalService {
 
     // 同步终端类型
     void syncHistoryMac(Date time);
+
+    // 改为资产终端
+    int editTerminalType(Long[] ids);
 }

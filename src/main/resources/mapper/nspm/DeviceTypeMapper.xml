@@ -32,12 +32,36 @@
         </collection>
     </resultMap>
 
+    <resultMap id="Join_Terminal_Map" type="com.metoo.nspm.entity.nspm.DeviceType">
+        <id column="id" property="id"></id>
+        <result column="addTime" property="addTime"></result>
+        <result column="deleteStatus" property="deleteStatus"></result>
+        <result column="name" property="name"></result>
+        <result column="count" property="count"></result>
+        <result column="type" property="type"></result>
+        <collection property="terminalList" javaType="list"
+                    ofType="com.metoo.nspm.entity.nspm.Terminal">
+            <id column="rt_id" property="id"></id>
+            <result column="rt_name" property="name"></result>
+            <result column="rt_online" property="online"></result>
+        </collection>
+    </resultMap>
+
     <sql id="Join_Column_List">
         dt.id, dt.addTime, dt.deleteStatus, dt.name, n.id ne_id, n.*,
         (
 			SELECT COUNT(*)
 			FROM metoo_ne n
 			WHERE dt.id = n.`device_type_id`
+	 ) count
+    </sql>
+
+    <sql id="Terminal_Join_Column_List">
+        dt.id, dt.name, rt.id rt_id, rt.name rt_name, rt.online rt_online,
+        (
+			SELECT COUNT(*)
+			FROM rsms_terminal rt
+			WHERE dt.id = rt.`deviceType_id`
 	 ) count
     </sql>
 
@@ -72,10 +96,16 @@
             <if test="deviceTypeId != null and deviceTypeId != ''">
                 AND id != #{deviceTypeId}
             </if>
-            <if test="diff != null and diff != ''">
+            <if test="diff != null">
                 AND diff = #{diff}
             </if>
         </where>
+        <if test = "orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test = "orderType != null and orderType != ''">
+            ${orderType}
+        </if>
     </select>
 
     <select id="selectCountByLeftJoin" resultType="com.metoo.nspm.entity.nspm.DeviceType">
@@ -96,10 +126,26 @@
             dt.*, COUNT(*) `count`
         FROM
             rsms_device_type dt
-         JOIN
+         LEFT JOIN
             metoo_ne ne
         ON
             ne.device_type_id = dt.id
+        WHERE dt.diff = 0
+        GROUP BY
+            dt.id
+    </select>
+
+
+    <select id="selectDeviceTypeAndTerminalByJoin" resultMap="Join_Terminal_Map">
+         SELECT
+            dt.*, COUNT(*) `count`
+        FROM
+            rsms_device_type dt
+         LEFT JOIN
+            rsms_terminal rt
+        ON
+            rt.deviceType_id = dt.id
+        WHERE dt.diff = 1
         GROUP BY
             dt.id
     </select>
@@ -111,8 +157,82 @@
          LEFT JOIN
             metoo_ne n
         ON
-            n.device_type_id = dt.id;
+            n.device_type_id = dt.id
+        WHERE diff = 0 order by dt.sequence desc;
     </select>
+
+    <select id="selectTerminalCountByJoin" resultMap="Join_Terminal_Map">
+        SELECT
+        <include refid="Terminal_Join_Column_List"/>
+        FROM rsms_device_type dt
+        LEFT JOIN
+          rsms_terminal rt
+        ON
+        rt.deviceType_id = dt.id
+        WHERE diff = 1 order by dt.sequence desc;
+    </select>
+
+    <select id="selectNeSumByType" parameterType="java.util.Map" resultMap="Join_Result_Map">
+        SELECT
+            dt.*, IF(mn.device_type_id IS NULL,0,COUNT(*)) `count`
+        FROM
+            rsms_device_type dt
+         LEFT JOIN
+            metoo_ne mn
+        ON
+            mn.device_type_id = dt.id
+        <where>
+            <if test="diff != null">
+                AND diff = #{diff}
+            </if>
+            <if test="type != null">
+                AND type = #{type}
+            </if>
+        </where>
+        <if test="group == null">
+            GROUP BY
+            dt.id
+        </if>
+    </select>
+
+    <select id="selectNeByType" parameterType="java.lang.Integer" resultMap="Join_Result_Map">
+        select * from rsms_device_type dt
+        join metoo_ne mn
+        on dt.id = mn.device_type_id
+        <where>
+            <if test="type != null">
+                AND dt.type = #{type}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectTerminalSumByType" parameterType="java.util.Map" resultMap="Join_Result_Map">
+        SELECT
+            dt.*, IF(rt.deviceType_id IS NULL,0,COUNT(*)) `count`
+        FROM
+            rsms_device_type dt
+         JOIN
+            rsms_terminal rt
+        ON
+            rt.deviceType_id = dt.id
+        <where>
+            <if test="type != null">
+                AND dt.type = #{type}
+            </if>
+            <if test="online != null">
+                AND rt.online = #{online}
+            </if>
+            <if test="diff != null">
+                AND dt.diff = 1
+            </if>
+        </where>
+        <if test="group == null">
+            GROUP BY
+            dt.id
+        </if>
+    </select>
+
+
 
     <select id="statistics" resultType="com.metoo.nspm.vo.DeviceTypeVO">
         SELECT

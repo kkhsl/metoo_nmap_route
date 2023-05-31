@@ -95,7 +95,7 @@ public class TopoNodeServiceImpl implements ITopoNodeService {
                     map.put("ip", ne.getIp());
                     map.put("deviceName", ne.getDeviceName());
                     map.put("uuid", ne.getUuid());
-                    map.put("deviceType", ne.getDeviceTypeName());
+                    map.put("deviceType", ne.getVendorName());
                     map.put("type", obj.getValue());
                     devices.add(map);
                 }

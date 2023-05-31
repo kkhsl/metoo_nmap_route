@@ -31,7 +31,7 @@
     #LOING_LOGO{
         width:80px;
         height:60px;
-        background-image:url('upload/manager/cloudtv.png');
+        background-image:url('static/upload/manager/cloudtv.png');
     }
 
     .LOGIN-CONTAINER-RIGHT{

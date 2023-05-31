@@ -55,6 +55,7 @@ public class Mac extends IdEntity {
 
     @ApiModelProperty("是否在线")
     private Boolean online;
+
     @ApiModelProperty("端口状态")
     private Integer interfaceStatus;
 

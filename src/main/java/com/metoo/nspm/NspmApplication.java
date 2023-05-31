@@ -9,14 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.freemarker.FreeMarkerProperties;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 
 /**
  * <p>
@@ -51,6 +54,15 @@ public class NspmApplication extends SpringBootServletInitializer {
         SpringApplication.run(NspmApplication.class);
         System.out.println("===应用启动耗时："+(System.currentTimeMillis()-time)+"===");
     }
+
+//    @Bean("freeMarkerViewResolver")
+//    public FreeMarkerViewResolver setFreeMarkerViewResolver(FreeMarkerProperties freeMarkerProperties){
+//        FreeMarkerViewResolver resolver = new FreeMarkerViewResolver();
+//        freeMarkerProperties.applyToMvcViewResolver(resolver);
+//        resolver.setRedirectHttp10Compatible(false);
+//        return resolver;
+//    }
+
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {

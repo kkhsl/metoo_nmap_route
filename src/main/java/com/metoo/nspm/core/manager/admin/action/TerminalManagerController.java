@@ -2,9 +2,7 @@ package com.metoo.nspm.core.manager.admin.action;
 
 import com.github.pagehelper.Page;
 import com.metoo.nspm.core.config.website.Properties;
-import com.metoo.nspm.core.manager.admin.tools.GroupTools;
-import com.metoo.nspm.core.manager.admin.tools.RsmsDeviceUtils;
-import com.metoo.nspm.core.manager.admin.tools.ShiroUserHolder;
+import com.metoo.nspm.core.manager.admin.tools.*;
 import com.metoo.nspm.core.service.nspm.*;
 import com.metoo.nspm.core.utils.ResponseUtil;
 import com.metoo.nspm.core.utils.file.DownLoadFileUtil;
@@ -15,6 +13,7 @@ import com.metoo.nspm.entity.nspm.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -142,7 +141,8 @@ public class TerminalManagerController {
                 dto.setDepartmentIds(ids);
             }
         }
-
+        dto.setOrderBy("online");
+        dto.setOrderType("DESC");
         Page<Terminal> page = this.terminalService.selectConditionQuery(dto);
         if(page.size() > 0){
             page.getResult().stream().forEach(e ->{
@@ -178,6 +178,8 @@ public class TerminalManagerController {
         // 设备类型
         Map parmas = new HashMap();
         parmas.put("diff", 1);
+        parmas.put("orderBy", "sequence");
+        parmas.put("orderType", "DESC");
         List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(parmas);
         map.put("deviceTypeList", deviceTypeList);
         // 分组
@@ -215,6 +217,8 @@ public class TerminalManagerController {
 
         Map parmas = new HashMap();
         parmas.put("diff", 1);
+        parmas.put("orderBy", "sequence");
+        parmas.put("orderType", "DESC");
         List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(parmas);
         map.put("deviceTypeList", deviceTypeList);
         // 厂商
@@ -267,6 +271,8 @@ public class TerminalManagerController {
         // 设备类型
         Map parmas = new HashMap();
         parmas.put("diff", 1);
+        parmas.put("orderBy", "sequence");
+        parmas.put("orderType", "DESC");
         List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(parmas);
         map.put("deviceTypeList", deviceTypeList);
 
@@ -308,6 +314,12 @@ public class TerminalManagerController {
     public Object save(@RequestBody Terminal instance){
         // 验证名称是否唯一
         Map params = new HashMap();
+        if(instance.getId() != null && !instance.getId().equals("")){
+            Terminal terminal = this.terminalService.selectObjById(instance.getId());
+            if(terminal == null){
+                return ResponseUtil.badArgument("终端不存在");
+            }
+        }
         // 验证Ip唯一性
         if(instance.getIp() == null || instance.getIp().equals("")){
             return ResponseUtil.badArgument("请输入有效IP");
@@ -404,6 +416,18 @@ public class TerminalManagerController {
             return ResponseUtil.ok();
         }
         return ResponseUtil.error();
+    }
+
+    @ApiOperation("批量修改终端为资产终端")
+    @PutMapping("/batch/update")
+    public Object editTerminal(@RequestParam Long[] ids){
+        if(ids.length > 0){
+            int i = this.terminalService.editTerminalType(ids);
+            if(i >= 1){
+                return ResponseUtil.ok();
+            }
+        }
+        return ResponseUtil.badArgument("请选择终端");
     }
 
 //    @GetMapping(value = {"/addresses/{id}/{path}", "/addresses/{id}", "/addresses"})

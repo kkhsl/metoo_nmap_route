@@ -26,4 +26,6 @@ public interface ITopologyService {
     int delete(Long id);
 
     Long copy(Topology instance);
+
+    List<Map<String, Object>> getDevicePortsByUuid(String uuid);
 }

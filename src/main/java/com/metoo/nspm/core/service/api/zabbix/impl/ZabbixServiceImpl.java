@@ -322,6 +322,68 @@ public class ZabbixServiceImpl implements ZabbixService {
     }
 
     @Override
+    public ItemTagBoardVO getBoard(String ip, List itemName, Integer limit, Long time_till, Long time_from) {
+        JSONArray items = this.zabbixItemService.getItemsByIpAndTags(ip, itemName);
+        ItemTagBoardVO itemTagBoardVO = new ItemTagBoardVO();
+        if(items.size() > 0) {
+            Map map = new HashMap();
+            for (Object object : items) {
+                JSONObject item = JSONObject.parseObject(object.toString());
+                JSONArray tags = JSONArray.parseArray(item.getString("tags"));
+                for (Object t : tags) {
+                    JSONObject tag = JSONObject.parseObject(t.toString());
+                    if (tag.getString("tag").equals("obj")) {
+                        if (tag.getString("value").equals("cpuusage")) {
+                            JSONObject history = this.getHistory(Arrays.asList(item.getInteger("itemid")), limit, time_till, time_from);
+                            List result = this.parseHistoryZeroize(history, time_till, time_from);
+                            itemTagBoardVO.setCpu(result);
+                        }
+                        if (tag.getString("value").equals("memusage")) {
+                            JSONObject history = this.getHistory(Arrays.asList(item.getInteger("itemid")), limit, time_till, time_from);
+                            List result = this.parseHistoryZeroize(history, time_till, time_from);
+                            itemTagBoardVO.setMem(result);
+                        }
+                        if (tag.getString("value").equals("temp")) {
+                            JSONObject history = this.getHistory(Arrays.asList(item.getInteger("itemid")), limit, time_till, time_from);
+                            List result = this.parseHistoryZeroize(history, time_till, time_from);
+                            itemTagBoardVO.setTemp(result);
+                        }
+                    }
+                }
+            }
+            return itemTagBoardVO;
+        }
+        return itemTagBoardVO;
+    }
+
+    @Override
+    public Map getDeviceHtml(String ip, List itemName) {
+        Map map = new HashMap();
+        JSONArray items = this.zabbixItemService.getItemsByIpAndTags(ip, itemName);
+        if(items.size() > 0) {
+            for (Object object : items) {
+                JSONObject item = JSONObject.parseObject(object.toString());
+                JSONArray tags = JSONArray.parseArray(item.getString("tags"));
+                for (Object t : tags) {
+                    JSONObject tag = JSONObject.parseObject(t.toString());
+                    if (tag.getString("tag").equals("obj")) {
+                        if (tag.getString("value").equals("systemname")) {
+                            map.put("deviceName", item.getString("lastvalue"));
+                        }
+                        if (tag.getString("value").equals("uptime")) {
+                            map.put("upTime", DateTools.uptime(Long.parseLong(item.getString("lastvalue"))));
+                        }
+                        if (tag.getString("value").equals("systemdescription")) {
+                            map.put("description", item.getString("lastvalue"));
+                        }
+                    }
+                }
+            }
+        }
+        return map;
+    }
+
+    @Override
     public Map getDeviceInfo(String ip, List itemName, Integer limit, Long time_till, Long time_from, boolean flag) {
         JSONArray items = this.zabbixItemService.getItemsByIpAndTags(ip, itemName);
         if(items.size() > 0) {

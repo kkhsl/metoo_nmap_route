@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @ApiModel("设备类型")
@@ -16,9 +17,11 @@ public class DeviceType extends IdEntity {
 
     private String name;
     private Integer count;
+    private Integer onlineCount;
     private Integer online;
     private Integer type;
-    private List<NetworkElement> networkElementList;
+    private List<NetworkElement> networkElementList = new ArrayList<>();
+    private List<Terminal> terminalList = new ArrayList<>();
 
     private Integer sequence;
     private Integer diff;

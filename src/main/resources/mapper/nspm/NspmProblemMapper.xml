@@ -39,7 +39,7 @@
                 AND objectid is not null
             </if>
         </where>
-        order by restoreTime desc, addTime desc
+        order by restoreTime desc, clock desc
         <if test="limit != null">
             limit  ${limit}
         </if>

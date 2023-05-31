@@ -14,6 +14,8 @@ public class Vendor extends IdEntity {
 
     private String name;
 
+    private String nameEn;
+
     private Integer index;
 
     private String uuid;

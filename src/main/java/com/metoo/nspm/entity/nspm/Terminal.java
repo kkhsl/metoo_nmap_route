@@ -40,8 +40,8 @@ public class Terminal extends IdEntity {
     private String index;
     @ApiModelProperty("索引")
     private String uuid;
-    @ApiModelProperty("类型")
-    private String type;
+    @ApiModelProperty("类型 0: 普通终端 1：资产终端")
+    private Integer type;
     @ApiModelProperty("接口索引")
     private String interfaceIndex;
 

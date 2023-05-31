@@ -57,14 +57,12 @@ public class ScheduleGatherZabbixTask {
     static DefaultWebSecurityManager manager = new DefaultWebSecurityManager();
 
 
-
     /**
      * 修改采集时间[调整子网在线时长]
      *
      * 采集Arp
      */
     @Scheduled(cron = "0 */1 * * * ?")
-//    @Scheduled(cron = "*/5 * * * * ?")
     public void configureTask() throws InterruptedException {
 //        ThreadContext.bind(manager);
         //下面正常使用业务代码即可
@@ -80,16 +78,11 @@ public class ScheduleGatherZabbixTask {
             // 存在先后顺序，先录取arp，在根据arp解析数据
 
             try {
-//                this.zabbixService.gatherArp(date);
                 this.gatherService.gatherArpItem(date);
             } catch (Exception e) {
                 e.printStackTrace();
             }
             System.out.println("===Arp采集耗时：" + (System.currentTimeMillis()-time) + "===");
-//            for (int i = 1; i <= 10; i++){
-//                Thread.sleep(1000);
-//                System.out.println("arp" + i);
-//            }
         }
     }
 
@@ -97,11 +90,9 @@ public class ScheduleGatherZabbixTask {
      * 使用批量插入、Stream并行流优化采集
      */
     @Scheduled(cron = "0 */1 * * * ?")
-//    @Scheduled(cron = "*/5 * * * * ?")
-    public void gatherMac() throws InterruptedException {
+    public void gatherMac() {
         if(flag){
             Long time = System.currentTimeMillis();
-            // 采集时间
             Calendar cal = Calendar.getInstance();
             cal.clear(Calendar.SECOND);
             cal.clear(Calendar.MILLISECOND);
@@ -115,11 +106,6 @@ public class ScheduleGatherZabbixTask {
                 e.printStackTrace();
             }
             log.info("Task-Mac采集结束，采集时间为：" + (System.currentTimeMillis()-time));
-
-//            for (int i = 1; i <= 10; i++){
-//                Thread.sleep(1000);
-//                System.out.println("mac" + i);
-//            }
         }
     }
 
@@ -148,6 +134,7 @@ public class ScheduleGatherZabbixTask {
         }
     }
 
+
     @Scheduled(cron = "0 */1 * * * ?")
     public void gatherStp(){
 //        ThreadContext.bind(manager);
@@ -169,42 +156,15 @@ public class ScheduleGatherZabbixTask {
         }
     }
 
-
     /**
      * 采集Problem
      */
-//    @Scheduled(cron = "0 */1 * * * ?")
-//    @Scheduled(cron = "*/10 * * * * ?")
-//    public void gatherProblem(){
-////        ThreadContext.bind(manager);
-//        //下面正常使用业务代码即可
-//        if(flag) {
-//            // 采集时间
-//            Calendar cal = Calendar.getInstance();
-//            cal.clear(Calendar.SECOND);
-//            cal.clear(Calendar.MILLISECOND);
-//            Date date = cal.getTime();
-//            this.zabbixService.gatherProblem();
-////            try {
-////                this.zabbixService.gatherProblem();
-////            } catch (Exception e) {
-////                e.printStackTrace();
-////            }
-//        }
-//    }
-
-    /**
-     * 采集Problem
-     */
-//    @Scheduled(cron = "*/10 * * * * ?")
     @Scheduled(cron = "0 */1 * * * ?")
     public void gatherThreadProblem(){
-//        ThreadContext.bind(manager);
         //下面正常使用业务代码即可
         if(flag) {
             // 采集时间
             Long begin = System.currentTimeMillis();
-//            this.zabbixService.gatherThreadProblem();
             this.zabbixService.gatherProblem();
             Long end = System.currentTimeMillis();
             log.info("执行时间：" + (end - begin));

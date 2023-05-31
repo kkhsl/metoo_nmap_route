@@ -117,66 +117,6 @@ public class MacUtil {
         }
     }
 
-    public void writerHistoryOnline(List<Mac> macs){
-        if(macs.size() > 0){
-            Map params = new HashMap();
-            macs.stream().forEach(e -> {
-                params.clear();
-                params.put("mac", e.getMac());
-                List<Terminal> terminals = this.terminalService.selectObjByMap(params);
-                if(terminals.size() > 0){
-                    Terminal terminal = terminals.get(0);
-                    if(terminal.getOnline()){
-                        e.setOnline(true);
-                    }
-
-                }
-            });
-        }
-    }
-
-//    public void writerHistoryOnline(List<Mac> macs, Date time){
-//        if(macs.size() > 0){
-//            Map params = new HashMap();
-//            macs.stream().forEach(e -> {
-//                params.clear();
-//                params.put("ip", e.getIp());
-//                params.put("time", time);
-//                List<TerminalHistory> terminalHistorys = this.terminalHistoryService.selectObjByMap(params);
-//                if(terminalHistorys.size() > 0){
-//                    TerminalHistory terminalHistory = terminalHistorys.get(0);
-//                    if(terminalHistory.getOnline()){
-//                        e.setOnline(true);
-//                    }else{
-//                        e.setOnline(false);
-//                    }
-//                }else{
-//                    e.setOnline(false);
-//                }
-//            });
-//        }
-//    }
-
-    public void getTerminalHistoryOnline(Terminal terminal, Date time){
-        if(terminal != null){
-            Map params = new HashMap();
-            params.clear();
-            params.put("ip", terminal.getIp());
-            params.put("time", time);
-            List<TerminalHistory> terminalHistorys = this.terminalHistoryService.selectObjByMap(params);
-            if(terminalHistorys.size() > 0){
-                TerminalHistory terminalHistory = terminalHistorys.get(0);
-                if(terminalHistory.getOnline()){
-                    terminal.setOnline(true);
-                }else{
-                    terminal.setOnline(false);
-                }
-            }else{
-                terminal.setOnline(false);
-            }
-        }
-    }
-
     public static void main(String[] args) {
         String macAddr = "50:0:0:26:0:2";
         String mac = supplement(macAddr);

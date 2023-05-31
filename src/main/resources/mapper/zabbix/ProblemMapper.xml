@@ -12,8 +12,13 @@
                 AND objectid = #{objectid}
             </if>
         </where>
+        <if test = "orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test = "orderType != null and orderType != ''">
+            ${orderType}
+        </if>
     </select>
-
 
     <select id="selectCount" parameterType="java.util.Map" resultType="int">
         SELECT

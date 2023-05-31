@@ -44,6 +44,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import sun.nio.ch.Net;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -61,6 +62,8 @@ public class NetworkElementManagerController {
 
     @Autowired
     private INetworkElementService networkElementService;
+    @Autowired
+    private INetworkElementAccessoryService networkElementAccessoryService;
     @Autowired
     private IRsmsDeviceService rsmsDeviceService;
     @Autowired
@@ -89,6 +92,8 @@ public class NetworkElementManagerController {
     private ITerminalTypeService terminalTypeService;
     @Autowired
     private ItemMapper itemMapper;
+    @Autowired
+    private IConfigBackupService configBackupService;
 
     @Value("${batchImportNeFileName}")
     private String batchImportNeFileName;
@@ -414,7 +419,12 @@ public class NetworkElementManagerController {
 //        params.put("types", Arrays.asList(0,1,2,5));
 //        List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(params);
 //        map.put("device", deviceTypeList);
-        List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(null);
+        // 设备类型
+        Map parmas = new HashMap();
+        parmas.put("diff", 0);
+        parmas.put("orderBy", "sequence");
+        parmas.put("orderType", "DESC");
+        List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(parmas);
         map.put("device", deviceTypeList);
         // 凭据列表
         List<Credential> credentials = this.credentialService.getAll();
@@ -437,9 +447,11 @@ public class NetworkElementManagerController {
         }
         map.put("group", groupList);
         // 设备类型
-        Map params = new HashMap();
-//        params.put("types", Arrays.asList(0,1,2,5));
-        List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(params);
+        Map parmas = new HashMap();
+        parmas.put("diff", 0);
+        parmas.put("orderBy", "sequence");
+        parmas.put("orderType", "DESC");
+        List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(parmas);
         map.put("device", deviceTypeList);
         // 厂商
         List<Vendor> vendors = this.vendorService.selectConditionQuery(null);
@@ -744,9 +756,8 @@ public class NetworkElementManagerController {
         return ResponseUtil.badArgument();
     }
 
-    @PostMapping("/config/list")
+//    @PostMapping("/config/list")
     public Object configList(@RequestBody(required = true)DeviceConfigDTO dto){
-//        NetworkElement networkElement = this.networkElementService.selectObjById(dto.getNeId());
         NetworkElement networkElement = this.networkElementService.selectObjByUuid(dto.getNeUuid());
         if(networkElement != null){
             if(dto == null){
@@ -765,31 +776,31 @@ public class NetworkElementManagerController {
         return ResponseUtil.badArgument("请选择网元");
     }
 
-    @RequestMapping("/config/upload")
-    public Object uploadConfig(@RequestParam(value = "file", required = false) MultipartFile file, Long id){
-        NetworkElement ne = this.networkElementService.selectObjById(id);
-        if(ne != null){
-            if(file != null){
-                Accessory accessory = this.uploadFile(file);
-                if(accessory != null){
-                    DeviceConfig deviceConfig = new DeviceConfig();
-                    deviceConfig.setAddTime(new Date());
-                    deviceConfig.setName(accessory.getA_name());
-                    deviceConfig.setNeId(ne.getId());
-                    deviceConfig.setAccessoryId(accessory.getId());
-                    deviceConfig.setNeUuid(ne.getUuid());
-                    this.deviceConfigService.save(deviceConfig);
-                    return ResponseUtil.ok();
-                }else{
-                    return ResponseUtil.error();
-                }
-            }
-            return ResponseUtil.badArgument();
-        }
-        return ResponseUtil.badArgument();
-    }
+//    @RequestMapping("/config/upload")
+//    public Object uploadConfig(@RequestParam(value = "file", required = false) MultipartFile file, Long id){
+//        NetworkElement ne = this.networkElementService.selectObjById(id);
+//        if(ne != null){
+//            if(file != null){
+//                Accessory accessory = this.uploadFile(file);
+//                if(accessory != null){
+//                    DeviceConfig deviceConfig = new DeviceConfig();
+//                    deviceConfig.setAddTime(new Date());
+//                    deviceConfig.setName(accessory.getA_name());
+//                    deviceConfig.setNeId(ne.getId());
+//                    deviceConfig.setAccessoryId(accessory.getId());
+//                    deviceConfig.setNeUuid(ne.getUuid());
+//                    this.deviceConfigService.save(deviceConfig);
+//                    return ResponseUtil.ok();
+//                }else{
+//                    return ResponseUtil.error();
+//                }
+//            }
+//            return ResponseUtil.badArgument();
+//        }
+//        return ResponseUtil.badArgument();
+//    }
 
-    @RequestMapping("/config/down")
+//    @RequestMapping("/config/down")
     public Object uploadConfig(HttpServletResponse response, Long id){
        DeviceConfig deviceConfig = this.deviceConfigService.selectObjById(id);
        if(deviceConfig != null){
@@ -863,7 +874,7 @@ public class NetworkElementManagerController {
         return "";
     }
 
-    @GetMapping("/config/info")
+//    @GetMapping("/config/info")
     public Object info(@RequestParam(value = "ids") String ids){
         Map map = new HashMap();
         for(String id : ids.split(",")){
@@ -913,45 +924,6 @@ public class NetworkElementManagerController {
         }
         return ResponseUtil.ok(map);
     }
-
-    public Accessory uploadFile(@RequestParam(required = false) MultipartFile file){
-//        String path = "C:\\Users\\46075\\Desktop\\新建文件夹";
-        try {
-//            path = ClassUtils.getDefaultClassLoader().getResource("").getPath() + "static/topology";
-//            path = ResourceUtils.getURL("classpath:").getPath() + "/static/topology/config";
-//            String path = "/opt/topology/service/nspm/file";
-            String path = "/opt/nmap/service/nmap/file";
-//        String originalName = file.getOriginalFilename();
-//        String fileName = UUID.randomUUID().toString().replace("-", "");
-//        String ext = originalName.substring(originalName.lastIndexOf("."));
-//        String picNewName = fileName + ext;
-//        String imgRealPath = path  + File.separator + picNewName;
-            Date currentDate = new Date();
-            String fileName = DateTools.getCurrentDate(currentDate);
-            String ext = ".conf";
-            File folder = new File(URLDecoder.decode( path +  "/" + fileName + ext,"utf-8"));
-            if(!folder.exists()){
-                folder.mkdir();
-            }
-            file.transferTo(folder);
-            Accessory accessory = new Accessory();
-            accessory.setA_name(fileName);
-            accessory.setA_path(URLDecoder.decode(path, "utf-8"));
-            accessory.setA_ext(ext);
-            accessory.setA_size((int)file.getSize());
-            accessory.setType(3);
-            this.accessoryService.save(accessory);
-            return accessory;
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }catch (FileNotFoundException e) {
-                e.printStackTrace();
-        }catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
 
     @ApiOperation("Excel导入")
     @PostMapping("/import2")
@@ -1284,6 +1256,200 @@ public class NetworkElementManagerController {
             return ResponseUtil.ok(map);
         }
         return ResponseUtil.badArgument("Uuid不存在");
+    }
+
+    @ApiOperation("配置上传")
+    @RequestMapping("/config/upload")
+    public Object uploadConfig(@RequestParam(value = "file", required = false) MultipartFile file, Long id){
+        NetworkElement ne = this.networkElementService.selectObjById(id);
+        if(ne != null){
+            if(file != null){
+                ConfigBackup configBackup = this.configBackupService.getInstance();
+                Date currentTime = new Date();
+                String time = DateTools.getCurrentDate(currentTime);
+                String fileName = ne.getDeviceName()
+                        + "_"
+                        + ne.getIp()
+                        + "_"
+                        + ne.getUuid()
+                        + "_"
+                        + time;
+                Accessory accessory = this.uploadFile(file, fileName, configBackup.getFileHome(), currentTime);
+                if(accessory != null){
+                    NeAccessory na = new NeAccessory();
+                    na.setNeId(ne.getId());
+                    na.setAccessoryId(accessory.getId());
+                    this.networkElementAccessoryService.save(na);
+                    return ResponseUtil.ok();
+                }else{
+                    return ResponseUtil.error();
+                }
+            }
+            return ResponseUtil.badArgument();
+        }
+        return ResponseUtil.badArgument();
+    }
+
+
+    public Accessory uploadFile(@RequestParam(required = false) MultipartFile file,String fileName, String path, Date time){
+//        String path = "C:\\Users\\46075\\Desktop\\新建文件夹";
+        try {
+//            path = ClassUtils.getDefaultClassLoader().getResource("").getPath() + "static/topology";
+//            path = ResourceUtils.getURL("classpath:").getPath() + "/static/topology/config";
+//            String path = "/opt/topology/service/nspm/file";
+//            String path = "/opt/nmap/service/nmap/file";
+//        String originalName = file.getOriginalFilename();
+//        String fileName = UUID.randomUUID().toString().replace("-", "");
+//        String ext = originalName.substring(originalName.lastIndexOf("."));
+//        String picNewName = fileName + ext;
+//        String imgRealPath = path  + File.separator + picNewName;
+//            String ext = ".conf";
+//            File folder = new File(URLDecoder.decode(path,"utf-8"));
+//            if(!folder.exists()){
+//                folder.mkdir();
+//            }
+            File fil = new File(path + fileName + ".conf");
+            if (!fil.getParentFile().exists()) {
+                fil.getParentFile().mkdirs();
+            }
+            file.transferTo(fil);
+            Accessory accessory = new Accessory();
+            accessory.setAddTime(time);
+            accessory.setA_name(fileName);
+            accessory.setA_path(URLDecoder.decode(path, "utf-8"));
+            accessory.setA_ext(".conf");
+            accessory.setA_size((int)file.getSize());
+            this.accessoryService.save(accessory);
+            return accessory;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     *
+     * @param uuid
+     * @return
+     */
+
+    @ApiOperation("配置文件备份")
+    @GetMapping("/config/backup/{uuid}")
+    public Object backupConfig(@PathVariable String uuid){
+        if(Strings.isNotBlank(uuid)){
+            NetworkElement ne = this.networkElementService.selectObjByUuid(uuid);
+            if(ne != null){
+                return this.networkElementService.backup(ne);
+            }
+        }
+        return ResponseUtil.badArgument();
+    }
+
+    @ApiOperation("配置文件列表")
+    @GetMapping("/config/list/{uuid}")
+    public Object ConfigList2(@PathVariable String uuid){
+        if(Strings.isNotBlank(uuid)){
+            NetworkElement ne = this.networkElementService.selectObjByUuid(uuid);
+            if(ne != null){
+                NetworkElement obj = this.networkElementService.selectAccessoryByUuid(uuid);
+                if(obj != null){
+                    return ResponseUtil.ok(obj.getConfigList());
+                }else{
+                    return ResponseUtil.ok();
+                }
+            }
+        }
+        return ResponseUtil.badArgument();
+    }
+
+    @RequestMapping("/config/down/{id}")
+    public Object uploadConfig2(HttpServletResponse response, @PathVariable(value = "id") Long id){
+            NeAccessory neAccessory = this.networkElementAccessoryService.selectObjById(id);
+            if(neAccessory != null) {
+                Accessory accessory = this.accessoryService.getObjById(neAccessory.getAccessoryId());
+                if (accessory != null) {
+                    String path = accessory.getA_path() + accessory.getA_name() + accessory.getA_ext();
+                    File file = new File(path);
+                    if (file.exists()) {
+                        boolean flag = DownLoadFileUtil.downloadZip(file, response);
+                        if (flag) {
+                            return ResponseUtil.ok();
+                        } else {
+                            return ResponseUtil.error();
+                        }
+                    } else {
+                        return ResponseUtil.badArgument("文件不存在");
+                    }
+                }
+                return ResponseUtil.badArgument("文件不存在");
+            }
+        return ResponseUtil.badArgument();
+    }
+
+    /**
+     * 配置文件信息
+     * @param ids
+     * @return
+     */
+    @GetMapping("/config/info")
+    public Object info2(@RequestParam(value = "ids") String ids){
+        Map map = new HashMap();
+        for(String id : ids.split(",")){
+            NeAccessory neAccessory = this.networkElementAccessoryService.selectObjById(Long.parseLong(id));
+            if(neAccessory != null){
+                NetworkElement networkElement = this.networkElementService.selectObjById(neAccessory.getNeId());
+                if(networkElement != null){
+                    Accessory accessory = this.accessoryService.getObjById(neAccessory.getAccessoryId());
+                    if(accessory != null){
+                        // 读取文件
+                        String path = accessory.getA_path() + accessory.getA_name() + accessory.getA_ext();
+                        File file = new File(path);
+                        if(file.exists()){
+                            ByteArrayOutputStream bos = null;
+                            BufferedInputStream bis = null;
+                            try {
+                                bos = new ByteArrayOutputStream();
+                                bis = new BufferedInputStream(new FileInputStream(file));
+                                byte[] bytes = new byte[1024];
+                                int len = 0;
+                                while ((len = bis.read(bytes)) > 0) {
+                                    bos.write(bytes,0,len);
+                                    bos.flush();
+                                }
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            try {
+                                bos.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            try {
+                                bis.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            map.put(id, bos.toString()+" ");
+                        }else{
+                            map.put(id, "");
+                        }
+                    }
+                }
+            }
+        }
+        return ResponseUtil.ok(map);
+    }
+
+    @DeleteMapping("/config/del/{id}")
+    public Object delConfig(@PathVariable Long id){
+        return this.networkElementService.delConfig(id);
     }
 
 }

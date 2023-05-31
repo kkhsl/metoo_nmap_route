@@ -37,7 +37,10 @@
                 AND  `id` = #{id}
             </if>
             <if test="time != null">
-               AND addTime = (SELECT addTime FROM metoo_topology_history WHERE addTime &lt;=#{time} ORDER BY addTime DESC limit 1)
+               AND addTime = (
+                SELECT
+                addTime
+                FROM metoo_topology_history WHERE addTime &lt;=#{time}  AND  `id` = #{id} ORDER BY addTime DESC limit 1)
             </if>
             <if test="name != null and name != ''">
                 AND  `name` = #{name}

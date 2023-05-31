@@ -3,6 +3,7 @@ package com.metoo.nspm.core.service.api.zabbix;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.metoo.nspm.entity.zabbix.History;
+import com.metoo.nspm.vo.ItemTagBoardVO;
 
 import java.util.Date;
 import java.util.List;
@@ -22,6 +23,10 @@ public interface ZabbixService {
      * @return
      */
     Map getDevice(String ip, List itemName, Integer limit, Long time_till, Long time_from);
+
+    ItemTagBoardVO getBoard(String ip, List itemName, Integer limit, Long time_till, Long time_from);
+
+    Map getDeviceHtml(String ip, List itemName);
 
     Map getDeviceInfo(String ip, List itemName, Integer limit, Long time_till, Long time_from, boolean flag);
 

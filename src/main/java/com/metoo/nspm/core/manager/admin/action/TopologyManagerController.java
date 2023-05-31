@@ -416,7 +416,7 @@ public class TopologyManagerController {
 
     @ApiOperation("拓扑信息")
     @GetMapping("/info")
-    public Object info(
+    public Object topologyInfo(
             @RequestParam(value = "id") Long id,
             @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
             @RequestParam(value = "time", required = false) Date time){
@@ -534,6 +534,7 @@ public class TopologyManagerController {
             if(time == null){
                 topologies = this.topologyService.selectObjByMap(params);
             }else{
+                params.put("id", id);
                 params.put("time", time);
                 topologies = this.topologyHistoryService.selectObjByMap(params);
             }
@@ -607,13 +608,15 @@ public class TopologyManagerController {
         return ResponseUtil.ok();
     }
 
+    @ApiOperation("拓扑文件上传")
     @RequestMapping("/upload")
     public Object upload(
             @RequestParam(value = "file", required = false) MultipartFile file){
         if(file != null && file.getSize() > 0){
-            boolean accessory = this.uploadFile(file);
-            if(accessory){
-                return ResponseUtil.ok();
+            String accessory = this.uploadFile(file);
+//            boolean a = this.winUploadFile(file);
+            if(Strings.isNotBlank(accessory)){
+                return ResponseUtil.ok(accessory);
             }else{
                 return ResponseUtil.error();
             }
@@ -621,8 +624,44 @@ public class TopologyManagerController {
         return ResponseUtil.badArgument();
     }
 
-    public boolean uploadFile(@RequestParam(required = false) MultipartFile file){
-        String path = "C:\\Users\\46075\\Desktop\\新建文件夹";
+    public String uploadFile(@RequestParam(required = false) MultipartFile file){
+        String path = "/opt/nmap/resource";
+        String originalName = file.getOriginalFilename();
+//        String fileName = UUID.randomUUID().toString().replace("-", "");
+        String ext = originalName.substring(originalName.lastIndexOf("."));
+//        String picNewName = fileName + ext;
+//        String imgRealPath = path  + "/" + picNewName;
+        Date currentDate = new Date();
+        String fileName1 = DateTools.getCurrentDate(currentDate);
+//        String imgRealPath = path  + "/" + picNewName;
+        java.io.File imageFile = new File(path +  "/" + fileName1 + ext);
+        if (!imageFile.getParentFile().exists()) {
+            imageFile.getParentFile().mkdirs();
+        }
+        try {
+            file.transferTo(imageFile);
+            Accessory accessory = new Accessory();
+            accessory.setA_name(fileName1);
+            accessory.setA_path(path);
+            accessory.setA_ext(ext);
+            accessory.setA_size((int)file.getSize());
+            accessory.setType(4);
+            this.accessoryService.save(accessory);
+            String picNewName = fileName1 + ext;
+//            String patha = "http://127.0.0.1/images" + "/" + picNewName;
+//            String patha = /*"/opt/nmap/resource" + "/" +*/ picNewName;
+            String patha = /*"/opt/nmap/resource" + "/" +*/ "/images/" + picNewName;
+            return patha;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public boolean winUploadFile(@RequestParam(required = false) MultipartFile file){
+        String path = "C:\\Users\\Administrator\\Desktop\\新建文件夹 (2)";
         String originalName = file.getOriginalFilename();
         String fileName = UUID.randomUUID().toString().replace("-", "");
         String ext = originalName.substring(originalName.lastIndexOf("."));
@@ -630,8 +669,8 @@ public class TopologyManagerController {
         String imgRealPath = path  + File.separator + picNewName;
         Date currentDate = new Date();
         String fileName1 = DateTools.getCurrentDate(currentDate);
-        System.out.println(path + "\\" + fileName1 + ".conf");
-        java.io.File imageFile = new File(path +  "\\" + fileName1 + ".conf");
+        System.out.println(path + "\\" + fileName1 + ".png");
+        java.io.File imageFile = new File(path +  "\\" + fileName1 + ".png");
         if (!imageFile.getParentFile().exists()) {
             imageFile.getParentFile().mkdirs();
         }
@@ -642,7 +681,7 @@ public class TopologyManagerController {
             accessory.setA_path(path);
             accessory.setA_ext(ext);
             accessory.setA_size((int)file.getSize());
-            accessory.setType(3);
+            accessory.setType(4);
             this.accessoryService.save(accessory);
             return true;
         } catch (IOException e) {
@@ -1476,5 +1515,6 @@ public class TopologyManagerController {
         }
         return ResponseUtil.ok();
     }
+
 
 }

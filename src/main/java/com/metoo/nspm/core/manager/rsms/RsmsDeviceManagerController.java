@@ -1,5 +1,6 @@
 package com.metoo.nspm.core.manager.rsms;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.metoo.nspm.core.config.annotation.OperationLogAnno;
 import com.metoo.nspm.core.config.annotation.OperationType;
@@ -64,7 +65,6 @@ public class RsmsDeviceManagerController {
     @Autowired
     private IProjectService projectService;
 
-
     @GetMapping("/get")
     public Object get(String id){
         RsmsDevice rsmsDevice = this.rsmsDeviceService.getObjById(Long.parseLong(id));
@@ -120,6 +120,8 @@ public class RsmsDeviceManagerController {
         // 设备类型
         Map parmas = new HashMap();
         parmas.put("diff", 0);
+        parmas.put("orderBy", "sequence");
+        parmas.put("orderType", "DESC");
         List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(parmas);
         map.put("deviceTypeList", deviceTypeList);
         // 分组
@@ -191,6 +193,8 @@ public class RsmsDeviceManagerController {
         // 设备类型
         Map parmas = new HashMap();
         parmas.put("diff", 0);
+        parmas.put("orderBy", "sequence");
+        parmas.put("orderType", "DESC");
         List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(parmas);
         map.put("deviceTypeList", deviceTypeList);
 
@@ -246,6 +250,8 @@ public class RsmsDeviceManagerController {
             // 设备类型
             Map parmas = new HashMap();
             parmas.put("diff", 0);
+            parmas.put("orderBy", "sequence");
+            parmas.put("orderType", "DESC");
             List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(parmas);
             map.put("deviceTypeList", deviceTypeList);
             map.put("device", rsmsDevice);

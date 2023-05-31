@@ -244,4 +244,23 @@ public class TerminalServiceImpl implements ITerminalService {
             });
         }
     }
+
+    @Override
+    public int editTerminalType(Long[] ids) {
+        try {
+            for (Long id : ids) {
+                Terminal terminal = this.terminalMapper.selectObjById(id);
+                if(terminal != null){
+                    terminal.setType(1);
+                    this.terminalMapper.update(terminal);
+                }
+            }
+            return 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+//            throw new ArithmeticException("算数异常");
+            return 0;
+        }
+    }
 }

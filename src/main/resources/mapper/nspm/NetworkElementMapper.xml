@@ -27,6 +27,19 @@
         <result column="permit_connect" property="permitConnect"></result>
     </resultMap>
 
+    <resultMap id="Accessory_Ne_Map" type="com.metoo.nspm.entity.nspm.NetworkElement">
+        <id column="id" property="id" jdbcType="BIGINT" javaType="java.lang.Long"></id>
+        <collection property="configList" ofType="com.metoo.nspm.entity.nspm.Accessory">
+            <id property="id" column="a_id" jdbcType="BIGINT"/>
+            <id property="addTime" column="a_addTime" jdbcType="BIGINT"/>
+            <result property="a_name" column="a_name" jdbcType="VARCHAR"></result>
+            <result property="a_path" column="a_path" jdbcType="VARCHAR"></result>
+            <result property="a_ext" column="a_ext" jdbcType="VARCHAR"></result>
+            <result property="from" column="from" jdbcType="VARCHAR"></result>
+        </collection>
+    </resultMap>
+
+
     <sql id="Base_Column_List">
         id, addTime, deleteStatus, ip, device_name, group_id, group_name,
          device_type_id, device_type_name, vendor_id, vendor_name, description, user_id, user_name,
@@ -137,6 +150,17 @@
                 </foreach>
             </if>
         </where>
+    </select>
+
+    <select id="selectAccessoryByUuid" parameterType="java.lang.String" resultMap="Accessory_Ne_Map">
+        SELECT ne.*, na.id a_id, a.addTime a_addTime, a.name a_name, a.path a_path, a.ext a_ext, a.from
+        FROM metoo_ne ne
+        JOIN
+        metoo_ne_accessory na on ne.id = na.ne_id
+        JOIN
+        metoo_accessory a on a.id = na.accessory_id
+        WHERE ne.uuid = #{uuid}
+        ORDER BY a.addTime DESC
     </select>
 
     <insert id="save" parameterType="com.metoo.nspm.entity.nspm.NetworkElement" useGeneratedKeys="true" keyProperty="id">

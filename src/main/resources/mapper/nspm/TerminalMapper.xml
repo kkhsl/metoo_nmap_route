@@ -44,8 +44,7 @@
         <result column="vendor_id" property="vendorId"></result>
         <result column="project_id" property="projectId"></result>
         <result column="model" property="model"></result>
-
-
+        <result column="type" property="type"></result>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -108,8 +107,11 @@
             <if test="projectId != null and projectId != ''">
                 AND project_id = #{projectId}
             </if>
-            <if test="vendorId != null">
+            <if test="vendorId != null and vendorId != ''">
                 AND vendor_id = #{vendorId}
+            </if>
+            <if test="type != null and type != ''">
+                AND type = #{type}
             </if>
         </where>
         <if test = "orderBy != null and orderBy != ''">
@@ -428,6 +430,9 @@
             </if>
             <if test="uuid != null and uuid != ''">
                 uuid = #{uuid},
+            </if>
+            <if test="type != null">
+                `type` = #{type},
             </if>
             <if test="remoteDevice != null and remoteDevice != ''">
                 remote_device =  #{remoteDevice},

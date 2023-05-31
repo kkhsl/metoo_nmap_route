@@ -110,4 +110,22 @@ public class GenericityDemo {
         System.out.println("Data：" + data.get(0));
     }
 
+
+    @Test
+    public void test(){
+
+        List list = new ArrayList();
+
+        int n = list.size();
+
+        for (int i = 1; i < 10; i++) {
+
+            if(i == n){
+                // 结束
+            }
+        }
+        return;
+    }
+
+
 }

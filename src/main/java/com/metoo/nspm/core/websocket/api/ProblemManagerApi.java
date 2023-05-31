@@ -36,6 +36,8 @@ public class ProblemManagerApi {
         String sessionId = (String) requestParam.get("sessionId");
         Map params = new HashMap();
         params.put("limit", requestParam.get("limit"));
+//        params.put("orderBy", "clock");
+//        params.put("orderType", "desc");
         List<Problem> result = this.problemService.selectObjByMap(params);
         NoticeWebsocketResp rep = new NoticeWebsocketResp();
         rep.setNoticeType("6");

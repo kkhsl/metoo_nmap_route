@@ -3,12 +3,14 @@ package com.metoo.nspm.core.manager.admin.tools;
 import org.junit.Test;
 import org.springframework.stereotype.Component;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *   String.format("%tY", new Date())    //2011
@@ -36,19 +38,25 @@ public class DateTools {
     // Duration.between 时间差计算工具类
 
     public static void main(String[] args) {
-        System.out.println(1670317656L * 1000L);
-        System.out.println(1670317656 * 1000L);
-        System.out.println((1 * 60000));
-        System.out.println(longToStr((1670317656 * 1000L) + (1 * 60000L), "yyyy-MM-dd HH:mm"));
+//        System.out.println(1670317656L * 1000L);
+//        System.out.println(1670317656 * 1000L);
+//        System.out.println((1 * 60000));
+//        System.out.println(longToStr((1670317656 * 1000L) + (1 * 60000L), "yyyy-MM-dd HH:mm"));
+//
+//        LocalDateTime now = LocalDateTime.now();
+//        LocalDateTime time = now.withSecond(0).withNano(0);
+//        System.out.println(time);
+//
+//        String a = getCurrentDate(new Date(), "yyyyMMddHHmm");
+//        System.out.println(a);
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime time = now.withSecond(0).withNano(0);
-        System.out.println(time);
+        // 获取当前时间
+        String currentTime = getCurrentDate(new Date(), "yyyy-MM-dd HH:mm:ss");
+        System.out.println(currentTime);
 
     }
 
 
-    SimpleDateFormat sdf2 = new SimpleDateFormat();
 
     /**
      * @param date 当前时间
@@ -59,6 +67,14 @@ public class DateTools {
             date = new Date();
         }
         SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_yyyyMMddHHmmss);
+        return sdf.format(date);
+    }
+
+    public static String getCurrentDate(Date date, String format){
+        if(date == null){
+            date = new Date();
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
         return sdf.format(date);
     }
 
@@ -116,6 +132,7 @@ public class DateTools {
         if(date != null && !date.equals("")){
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat(format);
+//                sdf.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
                 return sdf.parse(date);
             } catch (Exception var3) {
                 return null;
@@ -195,6 +212,27 @@ public class DateTools {
         return second;
     }
 
+    public static String uptime(Long time){
+        //获取结束时间
+        Date finishTime = new Date();
+        //结束时间 转为 Long 类型
+        Long end = finishTime.getTime();
+        // 时间差 = 结束时间 - 开始时间，这样得到的差值是毫秒级别
+        long timeLag = time * 1000;
+        //天
+        long day=timeLag/(24*60*60*1000);
+        //小时
+        long hour=(timeLag/(60*60*1000) - day * 24);
+        //分钟
+        long minute=((timeLag/(60*1000))-day*24*60-hour*60);
+        //秒，顺便说一下，1秒 = 1000毫秒
+        long s=(timeLag/1000-day*24*60*60-hour*60*60-minute*60);
+        System.out.println("用了 "+day+"天 "+hour+"时 "+minute+"分 "+s+"秒");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println("任务结束，结束时间为："+ df.format(finishTime));
+        return day+"天 "+hour+"时 "+minute+"分";
+    }
+
     // 计算时间差
     @Test
     public void calculatingTimeDifference() throws InterruptedException {
@@ -258,4 +296,30 @@ public class DateTools {
         return cal.getTime().getTime() / 1000;
     }
 
+    @Test// 计算时间差
+    public void testn(){
+        //获取结束时间
+        Date finishTime = new Date();
+        //结束时间 转为 Long 类型
+        Long end = finishTime.getTime();
+        // 时间差 = 结束时间 - 开始时间，这样得到的差值是毫秒级别
+        long timeLag = 141223 * 1000;
+        //天
+        long day=timeLag/(24*60*60*1000);
+        //小时
+        long hour=(timeLag/(60*60*1000) - day * 24);
+        //分钟
+        long minute=((timeLag/(60*1000))-day*24*60-hour*60);
+        //秒，顺便说一下，1秒 = 1000毫秒
+        long s=(timeLag/1000-day*24*60*60-hour*60*60-minute*60);
+        System.out.println("用了 "+day+"天 "+hour+"时 "+minute+"分 "+s+"秒");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println("任务结束，结束时间为："+ df.format(finishTime));
+    }
+    @Test// 计算时间差
+    public void testnn(){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String format = sdf.format(140554);// 格式化时间
+        System.out.println(format);
+    }
 }

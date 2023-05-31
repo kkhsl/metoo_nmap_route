@@ -43,7 +43,9 @@ public class Accessory extends IdEntity {
     private Integer a_size;
     @ApiModelProperty("附件对应的用户，精细化管理用户附件")
     private Long a_userId;
-    @ApiModelProperty("附件类型0：图片 1：录播视频 2：回放视频 3：其他")
+    @ApiModelProperty("附件类型0：图片 1：录播视频 2：回放视频 3：其他 4：拓扑附件")
     private Integer type;
+    @ApiModelProperty("附件来源 0：手动上传 1：自动采集（python脚本生成）")
+    private Integer from;
 
 }

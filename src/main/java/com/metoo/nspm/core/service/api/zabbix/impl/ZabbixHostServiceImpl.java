@@ -9,6 +9,7 @@ import com.metoo.nspm.dto.zabbix.HostDTO;
 import io.github.hengyunabc.zabbix.api.DeleteRequest;
 import io.github.hengyunabc.zabbix.api.Request;
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +42,7 @@ public class ZabbixHostServiceImpl implements ZabbixHostService {
         dto.setFilter(map);
         dto.setMaintenance_status(true);
         JSONObject hosts = this.getHost(dto);
-        if(hosts.get("result") != null){
+        if(hosts.get("id") != null && Strings.isNotBlank(hosts.get("id").toString())){
             JSONArray arrays = JSONArray.parseArray(hosts.getString("result"));
             if(arrays.size() > 0){
                 JSONObject host = JSONObject.parseObject(arrays.get(0).toString());

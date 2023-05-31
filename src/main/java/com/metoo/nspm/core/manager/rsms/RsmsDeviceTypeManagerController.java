@@ -38,6 +38,12 @@ public class RsmsDeviceTypeManagerController {
         return ResponseUtil.ok(deviceTypes);
     }
 
+    @GetMapping("/terminal/count")
+    public Object terminalCount(){
+        List<DeviceType> deviceTypes = this.deviceTypeService.selectDeviceTypeAndTerminalByJoin();
+        return ResponseUtil.ok(deviceTypes);
+    }
+
     @ApiOperation("列表")
     @PostMapping("/list")
     public Object list(@RequestBody(required = true) DeviceTypeDTO dto){

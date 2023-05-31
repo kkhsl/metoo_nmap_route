@@ -15,7 +15,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, `name`, path, ext, width, height, `size`, userId, `type`
+        id, `name`, path, ext, width, height, `size`, userId, `type`, `from`
     </sql>
 
     <select id="getObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
@@ -36,6 +36,9 @@
           <if test=" id != null ">
               id,
           </if>
+            <if test=" addTime != null ">
+                addTime,
+            </if>
             <if test="a_name != null ">
                 name,
             </if>
@@ -60,11 +63,16 @@
             <if test=" type != null ">
                 `type`,
             </if>
-
+            <if test=" from != null ">
+                `from`,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test=" id != null ">
                 #{id},
+            </if>
+            <if test=" addTime != null ">
+                #{addTime},
             </if>
             <if test=" a_name != null ">
                 #{a_name},
@@ -90,7 +98,9 @@
             <if test="type != null ">
                 #{type},
             </if>
-
+            <if test=" from != null ">
+                #{from},
+            </if>
         </trim>
     </insert>
 

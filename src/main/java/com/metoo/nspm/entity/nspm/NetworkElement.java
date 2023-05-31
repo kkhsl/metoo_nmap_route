@@ -71,5 +71,14 @@ public class NetworkElement extends IdEntity {
     // 终端列表
     private List<Terminal> terminalList = new ArrayList<>();
 
+    // 附件列表
+    private List<Accessory> configList = new ArrayList<>();
+
+    // cpu
+    private String cpu;
+    // mem
+    private String mem;
+    // temp
+    private String temp;
 
 }

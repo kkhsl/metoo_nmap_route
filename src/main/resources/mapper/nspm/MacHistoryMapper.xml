@@ -14,7 +14,7 @@
         <result column="tag" property="tag"></result>
         <result column="uuid" property="uuid"></result>
         <result column="remote_device" property="remoteDevice"></result>
-        <result column="remote_a'cinterface" property="remoteInterface"></result>
+        <result column="remote_interface" property="remoteInterface"></result>
         <result column="remote_device_ip" property="remoteDeviceIp"></result>
         <result column="remote_device_type" property="remoteDeviceType"></result>
         <result column="remote_uuid" property="remoteUuid"></result>
@@ -113,6 +113,9 @@
             <if test="online != null">
                 AND online = #{online}
             </if>
+            <if test="interfaceStatus != null">
+                AND interface_status = #{interfaceStatus}
+            </if>
             <if test="uuids != null">
                 AND uuid in
                 <foreach collection="uuids" index="index" item="item" separator="," open="(" close=")">
@@ -146,7 +149,7 @@
     </select>
 
     <select id="selectByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
-        SELECT <include refid="Ntoa_Column_List" />
+        SELECT *
         FROM rsms_mac_history
         <where>
             <if test="mac != null">

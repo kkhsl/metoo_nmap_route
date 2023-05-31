@@ -72,7 +72,7 @@ public class ZabbixItemServiceImpl implements ZabbixItemService {
 
     public JSONArray getItemAndTagByHostId(String ip, List tags, List output){
         String hostid = this.zabbixHostService.getHostId(ip);
-        if(hostid != null){
+        if(Strings.isNotBlank(hostid)){
             ItemDTO itemDto = new ItemDTO();
             itemDto.setHostids(Arrays.asList(hostid));
             Map filterMap = new HashMap();

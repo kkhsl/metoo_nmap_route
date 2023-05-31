@@ -6,7 +6,7 @@
         <id column="id" property="id"></id>
         <result column="device_type" property="deviceType"></result>
         <result column="device_name" property="deviceName"></result>
-        <result column="device_id" property="deviceId"></result>
+        <result column="devicChangeLoge_id" property="deviceId"></result>
         <result column="user_name" property="userName"></result>
         <result column="change_reasons" property="changeReasons"></result>
         <result column="object_id" property="objectId"></result>

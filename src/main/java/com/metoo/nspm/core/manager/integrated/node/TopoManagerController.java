@@ -101,6 +101,8 @@ public class TopoManagerController {
     private IUserMacroService userMacroService;
     @Autowired
     private InterfaceService interfaceService;
+    @Autowired
+    private ITopologyService topologyService;
 
     @Test
     public void test(){
@@ -502,7 +504,7 @@ public class TopoManagerController {
             Map map = new HashMap();
 
             // 确定标签
-            Interface anInterface = this.interfaceService.selectInfAndTag(ip);
+            Interface anInterface = this.interfaceService.selectObjByIp(ip);
             if(anInterface == null){
                 return new ArrayList<>();
             }
@@ -1070,181 +1072,191 @@ public class TopoManagerController {
 //        return ResponseUtil.ok(list);
 //    }
 
+//    @ApiOperation("端口信息")
+//    @GetMapping("/topology-layer/port/{uuid}")
+//    public Object port(@PathVariable(value = "uuid") String uuid){
+//        if(Strings.isBlank(uuid)){
+//            return ResponseUtil.badArgument();
+//        }
+//        Map params = new HashMap();
+//        params.put("uuid", uuid);
+//        List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
+//        String name = "";
+//        String ip = "";
+//        Integer type = -1;
+//        if(networkElements.size() > 0){
+//            NetworkElement networkElement = networkElements.get(0);
+//            DeviceType deviceType = this.deviceTypeService.selectObjById(networkElement.getDeviceTypeId());
+//            if(deviceType != null){
+//                type = deviceType.getType();
+//            }
+//            ip = networkElement.getIp();
+//            name = networkElement.getInterfaceName();
+//        }
+//        List<Map<String, Object>> list = new ArrayList();
+//        if(type != 10 && type != 12 && type != -1){
+//            params.put("ip", ip);
+//            params.put("index", "ifindex");
+//            List<Item> itemTagList = this.itemMapper.interfaceTable(params);
+//            if(itemTagList.size() > 0){
+//                // 校验主机vendor
+//                List<Map<String, String>> h3cList = new ArrayList();
+//                Interface anInterface = this.interfaceService.selectInfAndTag(ip);
+//                if(anInterface != null){
+//                    String vendor = "";
+//                    if(anInterface.getItemTags().size() > 0) {
+//                        for (InterfaceTag itemTag : anInterface.getItemTags()) {
+//                            if (itemTag.getTag().equals("vender")) {
+//                                vendor = itemTag.getValue();
+//                                break;
+//                            }
+//                        }
+//                        if (true) {// vendor.equals("H3C")
+//                            // 获取默认vlan、端口类型
+//                            params.clear();
+//                            params.put("ip", ip);
+//                            params.put("tag", "ifvlan");
+//                            List<Item> h3cObj = this.itemMapper.selectItemTagByIpAndObjToPort(params);
+//                            if(h3cObj.size() > 0){
+//                                for (Item item : h3cObj) {
+//                                    Map<String, String> h3cMap = new HashMap();
+//                                    List<ItemTag> tags = item.getItemTags();
+//                                    for (ItemTag tag : tags) {
+//                                        if (tag.getTag().equals("ifname")) {
+//                                            h3cMap.put("ifname", tag.getValue());
+//                                        }
+//                                            if (tag.getTag().equals("iftype")) {
+//                                            String vlandefault = "unknown";
+//                                            if(Strings.isNotBlank(tag.getValue())){
+//                                                switch (tag.getValue()){
+//                                                    case "1":
+//                                                        vlandefault = "trunk";
+//                                                        break;
+//                                                    case "2":
+//                                                        vlandefault = "access";
+//                                                        break;
+//                                                    default:
+//                                                        vlandefault = "unknown";
+//                                                        break;
+//                                                }
+//                                            }
+//                                            h3cMap.put("iftype", vlandefault);
+//                                        }
+//                                        if (tag.getTag().equals("defaultvlan")) {
+//                                            h3cMap.put("defaultvlan", tag.getValue());
+//                                        }
+//                                        if (tag.getTag().equals("index")) {
+//                                            h3cMap.put("name", tag.getName());
+//                                        }
+//                                    }
+//                                    h3cList.add(h3cMap);
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                for (Item item : itemTagList) {
+//                    List<ItemTag> tags = item.getItemTags();
+//                    Map map = new HashMap();
+//                    map.put("description", "");
+//                    map.put("name", "");
+//                    map.put("ip", "");
+//                    map.put("mask", "");
+//                    map.put("status", "");
+//
+//                    map.put("iftype", "");
+//                    map.put("defaultvlan", "");
+//                    for (ItemTag tag : tags) {
+//                        if (tag.getTag().equals("description")) {
+//                            map.put("description", StringUtil.isEmpty(tag.getValue()) ? "" : tag.getValue());
+//                        }
+//                        if (tag.getTag().equals("ifname")) {
+//                            map.put("name", StringUtil.isEmpty(tag.getValue()) ? "" : tag.getValue());
+//                            if(h3cList.size() > 0){
+//                                for (Map<String, String> o : h3cList) {
+//                                    boolean flag = false;
+//                                    for(Map.Entry<String, String> h3cifvlan : o.entrySet()){
+//                                        if(h3cifvlan.getKey().equals("name")){
+//                                            if(h3cifvlan.getValue() != null && h3cifvlan.getValue().equals(tag.getValue())){
+//                                                flag = true;
+//                                            }
+//                                        }
+//                                    }
+//                                    if(flag){
+//                                        for(Map.Entry<String, String> h3cifvlan : o.entrySet()){
+//                                            map.put(h3cifvlan.getKey(), h3cifvlan.getValue());
+//                                        }
+//                                        break;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        if (tag.getTag().equals("ifup")) {
+//                            String status = "";
+//                            switch (tag.getValue()) {
+//                                case "1":
+//                                    status = "up";
+//                                    break;
+//                                case "2":
+//                                    status = "down";
+//                                    break;
+//                                default:
+//                                    status = "unknown";
+//                            }
+//                            map.put("status", status);
+//                        }
+//                        if (tag.getTag().equals("ifindex")) {
+//                            map.put("index", tag.getValue());
+//                            StringBuffer ip_mask = new StringBuffer();
+//                            if(tag.getIp() != null && !tag.getIp().equals("")){
+//                                String[] ips = tag.getIp().split("/");
+//                                String[] masks = tag.getMask().split("/");
+//                                if(ips.length == 0){
+//                                    map.put("ip", "");
+//                                }
+//                                if(ips.length == 1){
+//                                    ip_mask.append(tag.getIp());
+//                                    if(tag.getMask() != null && !tag.getMask().equals("")){
+//                                        ip_mask.append("/").append(IpUtil.getBitMask(tag.getMask()));
+//                                    }
+//                                    map.put("ip", ip_mask);
+//                                }
+//                                if(ips.length > 1 && masks.length > 1){
+//                                    for(int i = 0; i < ips.length; i ++){
+//                                        ip_mask.append(ips[i]).append("/").append(IpUtil.getBitMask(masks[i]));
+//                                        if(i + 1 < ips.length){
+//                                            ip_mask .append("\n");
+//                                        }
+//                                    }
+//                                    map.put("ip", ip_mask);
+//                                }
+//                            }
+//                        }
+//                    }
+//                    list.add(map);
+//                }
+//            }
+//        }else{
+//            Map map = new HashMap();
+//            map.put("name", name);
+//            map.put("status", "up");
+//            map.put("ip", ip);
+//            list.add(map);
+//        }
+//        if(list != null && list.size() > 0){
+//            ListSortUtil.sortStr(list);
+//        }
+//        return ResponseUtil.ok(list);
+//    }
+
     @ApiOperation("端口信息")
     @GetMapping("/topology-layer/port/{uuid}")
     public Object port(@PathVariable(value = "uuid") String uuid){
         if(Strings.isBlank(uuid)){
             return ResponseUtil.badArgument();
         }
-        Map params = new HashMap();
-        params.put("uuid", uuid);
-        List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
-        String name = "";
-        String ip = "";
-        Integer type = -1;
-        if(networkElements.size() > 0){
-            NetworkElement networkElement = networkElements.get(0);
-            DeviceType deviceType = this.deviceTypeService.selectObjById(networkElement.getDeviceTypeId());
-            if(deviceType != null){
-                type = deviceType.getType();
-            }
-            ip = networkElement.getIp();
-            name = networkElement.getInterfaceName();
-        }
-        List<Map<String, Object>> list = new ArrayList();
-        if(type != 10 && type != 12 && type != -1){
-            params.put("ip", ip);
-            params.put("index", "ifindex");
-            List<Item> itemTagList = this.itemMapper.interfaceTable(params);
-            if(itemTagList.size() > 0){
-                // 校验主机vendor
-                List<Map<String, String>> h3cList = new ArrayList();
-                Interface anInterface = this.interfaceService.selectInfAndTag(ip);
-                if(anInterface != null){
-                    String vendor = "";// H3C
-                    if(anInterface.getItemTags().size() > 0) {
-                        for (InterfaceTag itemTag : anInterface.getItemTags()) {
-                            if (itemTag.getTag().equals("vender")) {
-                                vendor = itemTag.getValue();
-                                break;
-                            }
-                        }
-                        if (true) {// vendor.equals("H3C")
-                            // 获取默认vlan、端口类型
-                            params.clear();
-                            params.put("ip", ip);
-                            params.put("tag", "ifvlan");
-                            List<Item> h3cObj = this.itemMapper.selectItemTagByIpAndObjToPort(params);
-                            if(h3cObj.size() > 0){
-                                for (Item item : h3cObj) {
-                                    Map<String, String> h3cMap = new HashMap();
-                                    List<ItemTag> tags = item.getItemTags();
-                                    for (ItemTag tag : tags) {
-                                        if (tag.getTag().equals("ifname")) {
-                                            h3cMap.put("ifname", tag.getValue());
-                                        }
-                                            if (tag.getTag().equals("iftype")) {
-                                            String vlandefault = "unknown";
-                                            if(Strings.isNotBlank(tag.getValue())){
-                                                switch (tag.getValue()){
-                                                    case "1":
-                                                        vlandefault = "trunk";
-                                                        break;
-                                                    case "2":
-                                                        vlandefault = "access";
-                                                        break;
-                                                    default:
-                                                        vlandefault = "unknown";
-                                                        break;
-                                                }
-                                            }
-                                            h3cMap.put("iftype", vlandefault);
-                                        }
-                                        if (tag.getTag().equals("defaultvlan")) {
-                                            h3cMap.put("defaultvlan", tag.getValue());
-                                        }
-                                        if (tag.getTag().equals("index")) {
-                                            h3cMap.put("name", tag.getName());
-                                        }
-                                    }
-                                    h3cList.add(h3cMap);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                for (Item item : itemTagList) {
-                    List<ItemTag> tags = item.getItemTags();
-                    Map map = new HashMap();
-                    map.put("description", "");
-                    map.put("name", "");
-                    map.put("ip", "");
-                    map.put("mask", "");
-                    map.put("status", "");
-
-                    map.put("iftype", "");
-                    map.put("defaultvlan", "");
-                    for (ItemTag tag : tags) {
-                        if (tag.getTag().equals("description")) {
-                            map.put("description", StringUtil.isEmpty(tag.getValue()) ? "" : tag.getValue());
-                        }
-                        if (tag.getTag().equals("ifname")) {
-                            map.put("name", StringUtil.isEmpty(tag.getValue()) ? "" : tag.getValue());
-                            if(h3cList.size() > 0){
-                                for (Map<String, String> o : h3cList) {
-                                    boolean flag = false;
-                                    for(Map.Entry<String, String> h3cifvlan : o.entrySet()){
-                                        if(h3cifvlan.getKey().equals("name")){
-                                            if(h3cifvlan.getValue() != null && h3cifvlan.getValue().equals(tag.getValue())){
-                                                flag = true;
-                                            }
-                                        }
-                                    }
-                                    if(flag){
-                                        for(Map.Entry<String, String> h3cifvlan : o.entrySet()){
-                                            map.put(h3cifvlan.getKey(), h3cifvlan.getValue());
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        if (tag.getTag().equals("ifup")) {
-                            String status = "";
-                            switch (tag.getValue()) {
-                                case "1":
-                                    status = "up";
-                                    break;
-                                case "2":
-                                    status = "down";
-                                    break;
-                                default:
-                                    status = "unknown";
-                            }
-                            map.put("status", status);
-                        }
-                        if (tag.getTag().equals("ifindex")) {
-                            map.put("index", tag.getValue());
-                            StringBuffer ip_mask = new StringBuffer();
-                            if(tag.getIp() != null && !tag.getIp().equals("")){
-                                String[] ips = tag.getIp().split("/");
-                                String[] masks = tag.getMask().split("/");
-                                if(ips.length == 0){
-                                    map.put("ip", "");
-                                }
-                                if(ips.length == 1){
-                                    ip_mask.append(tag.getIp());
-                                    if(tag.getMask() != null && !tag.getMask().equals("")){
-                                        ip_mask.append("/").append(IpUtil.getBitMask(tag.getMask()));
-                                    }
-                                    map.put("ip", ip_mask);
-                                }
-                                if(ips.length > 1 && masks.length > 1){
-                                    for(int i = 0; i < ips.length; i ++){
-                                        ip_mask.append(ips[i]).append("/").append(IpUtil.getBitMask(masks[i]));
-                                        if(i + 1 < ips.length){
-                                            ip_mask .append("\n");
-                                        }
-                                    }
-                                    map.put("ip", ip_mask);
-                                }
-                            }
-                        }
-                    }
-                    list.add(map);
-                }
-            }
-        }else{
-            Map map = new HashMap();
-            map.put("name", name);
-            map.put("status", "up");
-            map.put("ip", ip);
-            list.add(map);
-        }
-        if(list != null && list.size() > 0){
-            ListSortUtil.sortStr(list);
-        }
+        List list = this.topologyService.getDevicePortsByUuid(uuid);
         return ResponseUtil.ok(list);
     }
 

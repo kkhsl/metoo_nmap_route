@@ -66,9 +66,7 @@ public class MyCallable implements Callable<List<MacTemp>> {
         tagIfbasic(list, deviceName, deviceType, ip, uuid, params, macMap);
 
         // 采集：mac | h3cvlanmac
-        List<Item> items = h3cvlanmacOrMac(list, deviceName, deviceType, ip, uuid, type, params, macMap);
-
-        // 需等待mac采集执行结果
+        List<Item> items = h3cvlanmacOrMac(list, deviceName, deviceType, ip, uuid, type, params, macMap);// 需等待mac采集执行结果
         // 采集：arp
         if (items.size() <= 0) {
             tagArp(list, deviceName, deviceType, ip, uuid, params);
@@ -161,14 +159,13 @@ public class MyCallable implements Callable<List<MacTemp>> {
         if(type.equals("H3C")){
             params.clear();
             params.put("ip", ip);
-            params.put("tag", "h3cvlanmac");
-            params.put("index", "portindex");
+            params.put("tag", "macvlan");// h3cvlanmac
+            params.put("index", "index");
             params.put("tag_relevance", "ifbasic");
             params.put("index_relevance", "ifindex");
             params.put("name_relevance", "ifname");
-            itemTags = itemMapper.gatherItemByTagAndRtdata2(params);
+            itemTags = itemMapper.gatherItemByTagAndRtdata(params);
             if(itemTags.size() > 0){
-                final  Map<String, String> macVlan = macMap;
                 itemTags.stream().forEach(item -> {
                     List<ItemTag> tags = item.getItemTags();
                     MacTemp macTemp = new MacTemp();
@@ -180,7 +177,7 @@ public class MyCallable implements Callable<List<MacTemp>> {
                     if (tags != null && tags.size() > 0) {
                         for (ItemTag tag : tags) {
                             String value = tag.getValue();
-                            if (tag.getTag().equals("vlanmac")) {
+                            if (tag.getTag().equals("vlan")) {
                                 Map<String, String> map = this.macVlan(value);
                                 if(map != null){
                                     for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -191,7 +188,7 @@ public class MyCallable implements Callable<List<MacTemp>> {
                                     }
                                 }
                             }
-                            if (tag.getTag().equals("portindex")) {
+                            if (tag.getTag().equals("index")) {
                                 macTemp.setInterfaceName(tag.getName());
                                 macTemp.setIndex(value);
                             }
@@ -429,7 +426,10 @@ public class MyCallable implements Callable<List<MacTemp>> {
         return null;
     }
 
-
+    /**
+     * @param macAddr
+     * @return
+     */
     public static String supplement(String macAddr){
         int one_index = macAddr.indexOf(":");
         if(one_index != -1){

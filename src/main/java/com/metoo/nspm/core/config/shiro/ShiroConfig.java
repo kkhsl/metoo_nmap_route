@@ -79,6 +79,9 @@ public class ShiroConfig {
         // 2,配置系统受限资源
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
 
+        filterChainDefinitionMap.put("/web/**", "anon");
+        filterChainDefinitionMap.put("/*.jsp", "anon");
+
         filterChainDefinitionMap.put("/index.jsp", "authc");// authc 请求这个资源需要认证和授权;参数可以为视图可以为路径（/index.jsp、/**、/path/*）
         filterChainDefinitionMap.put("/user/login", "anon");// 设置所有资源都受限；避免登录资源受限，设置登录为公共资源
 

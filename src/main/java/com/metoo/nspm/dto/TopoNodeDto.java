@@ -21,7 +21,7 @@ public class TopoNodeDto<T> extends PageDto<TopoNode> {
     @ApiModelProperty("页数")
     private Integer start;
     @ApiModelProperty("每页条数")
-    private Integer limit;
+    private int limit;
     private Integer size;
     @ApiModelProperty("0：防火墙 1：路由交换 2：负载均衡 3：模拟网关 4：网闸 5：终端检测响应")
     private String type;
