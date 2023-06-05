@@ -2,7 +2,9 @@ package com.metoo.nspm.core.manager.admin.action;
 
 import com.alibaba.fastjson.JSONObject;
 import com.metoo.nspm.core.manager.admin.tools.DateTools;
+import com.metoo.nspm.core.manager.admin.tools.PortTypeEnums;
 import com.metoo.nspm.core.manager.zabbix.tools.InterfaceUtil;
+import com.metoo.nspm.core.mapper.zabbix.ItemMapper;
 import com.metoo.nspm.core.service.api.zabbix.ZabbixService;
 import com.metoo.nspm.core.service.nspm.IDeviceTypeService;
 import com.metoo.nspm.core.service.nspm.INetworkElementService;
@@ -12,12 +14,17 @@ import com.metoo.nspm.core.service.zabbix.InterfaceService;
 import com.metoo.nspm.core.utils.Global;
 import com.metoo.nspm.core.utils.freemarker.FreemarkerUtil;
 import com.metoo.nspm.core.utils.freemarker.PDFTemplateUtil;
+import com.metoo.nspm.core.utils.network.IpUtil;
+import com.metoo.nspm.entity.nspm.ArpTemp;
 import com.metoo.nspm.entity.nspm.DeviceType;
+import com.metoo.nspm.entity.nspm.MacTemp;
 import com.metoo.nspm.entity.nspm.NetworkElement;
 import com.metoo.nspm.entity.zabbix.Interface;
+import com.metoo.nspm.entity.zabbix.Item;
 import com.metoo.nspm.entity.zabbix.ItemTag;
 import com.metoo.nspm.vo.ItemTagBoardVO;
 import com.metoo.nspm.vo.Result;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -65,6 +72,8 @@ public class FreemarkerController {
     private INetworkElementService networkElementService;
     @Autowired
     private ITopologyService topologyService;
+    @Autowired
+    private ItemMapper itemMapper;
 
     @RequestMapping("/html")
     public String html(Model model){
@@ -115,20 +124,6 @@ public class FreemarkerController {
 //        model.addAttribute("upTime", "aaa");
 //        model.addAttribute("description", "asdfsafdsa");
         return "convertHtml";
-    }
-
-
-    public static void main(String[] args) {
-        Calendar calendar = Calendar.getInstance();
-        System.out.println(calendar.getTimeInMillis() / 1000);
-        System.out.println(calendar.getTimeInMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, new Date().getHours() - 1);
-        System.out.println(calendar.getTimeInMillis() / 1000);
-        System.out.println(calendar.getTimeInMillis());
-
-//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        System.out.println("一个小时前的时间：" + df.format(calendar.getTime()));
-//        System.out.println("当前的时间：" + df.format(new Date()));
     }
 
     public void getData(Model model){
@@ -187,6 +182,8 @@ public class FreemarkerController {
             // 网元总数
             List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
             model.addAttribute("networkElements", networkElements);
+
+
             List list = new ArrayList();
             networkElements.stream().forEach(e->{
                 boolean available = this.interfaceUtil.verifyHostIsAvailable(e.getIp());
@@ -198,151 +195,125 @@ public class FreemarkerController {
                 data.put("deviceName", e.getDeviceName());
                 data.put("upTime", data.get("upTime"));
                 data.put("description", data.get("description"));
-                // 确定标签
-                Interface anInterface = this.interfaceService.selectObjByIp(e.getIp());
-                if (anInterface != null) {
-                    Map params = new HashMap();
-                    params.put("ip", e.getIp());
-                    params.put("cpu", Global.BOARDCPU);
-                    params.put("mem", Global.BOARDMEM);
-                    params.put("temp", Global.BOARDTEMP);
-                    List<ItemTag> itemTags = this.itemTagService.queryBoardByMap(params);
+                e.setAvailable(available ? "" : "(SNMP不在线)");
+                if(available){
+                    // 确定标签
+                    Interface anInterface = this.interfaceService.selectObjByIp(e.getIp());
+                    if (anInterface != null) {
+                        Map params = new HashMap();
+                        params.put("ip", e.getIp());
+                        params.put("cpu", Global.BOARDCPU);
+                        params.put("mem", Global.BOARDMEM);
+                        params.put("temp", Global.BOARDTEMP);
+                        List<ItemTag> itemTags = this.itemTagService.queryBoardByMap(params);
 
-                    Calendar calendar = Calendar.getInstance();
-                    Long time_till = calendar.getTimeInMillis() / 1000;
-                    calendar.set(Calendar.HOUR_OF_DAY, new Date().getHours() - 1);
-                    Long time_from = calendar.getTimeInMillis() / 1000;
-                    if (itemTags.size() > 0) {
-                        // 查找是否存在 boardcpu|不在查询CPu和内存使用率
-                        List<ItemTagBoardVO> boards = this.itemTagService.selectBoard(e.getIp(), time_from, time_till);
-                        if (boards.size() > 0) {
-                            ItemTagBoardVO ele = boards.get(0);
-                            data.put("cpu", JSONObject.toJSONString(ele.getCpu()));
-                            data.put("mem", JSONObject.toJSONString(ele.getMem()));
-                            data.put("temp", JSONObject.toJSONString(ele.getTemp()));
-                        }
-                    } else {
-                        List names = Arrays.asList(
-                                "cpuusage",
-                                "memusage",
-                                "temp");
-                        ItemTagBoardVO board = this.zabbixService.getBoard(e.getIp(), names, 0, time_till, time_from);
-                        if (board != null) {
-                            data.put("cpu", JSONObject.toJSONString(board.getCpu()));
-                            data.put("mem", JSONObject.toJSONString(board.getMem()));
-                            data.put("temp", JSONObject.toJSONString(board.getTemp()));
+                        Calendar calendar = Calendar.getInstance();
+                        Long time_till = calendar.getTimeInMillis() / 1000;
+                        calendar.set(Calendar.HOUR_OF_DAY, new Date().getHours() - 1);
+                        Long time_from = calendar.getTimeInMillis() / 1000;
+                        if (itemTags.size() > 0) {
+                            // 查找是否存在 boardcpu|不在查询CPu和内存使用率
+                            List<ItemTagBoardVO> boards = this.itemTagService.selectBoard(e.getIp(), time_from, time_till);
+                            if (boards.size() > 0) {
+                                ItemTagBoardVO ele = boards.get(0);
+                                data.put("cpu", JSONObject.toJSONString(ele.getCpu()));
+                                data.put("mem", JSONObject.toJSONString(ele.getMem()));
+                                data.put("temp", JSONObject.toJSONString(ele.getTemp()));
+                            }
+                        } else {
+                            List names = Arrays.asList(
+                                    "cpuusage",
+                                    "memusage",
+                                    "temp");
+                            ItemTagBoardVO board = this.zabbixService.getBoard(e.getIp(), names, 0, time_till, time_from);
+                            if (board != null) {
+                                data.put("cpu", JSONObject.toJSONString(board.getCpu()));
+                                data.put("mem", JSONObject.toJSONString(board.getMem()));
+                                data.put("temp", JSONObject.toJSONString(board.getTemp()));
+                            }
                         }
                     }
+                    // 端口信息
+                    List<Map<String, Object>> ports = this.topologyService.getDevicePortsByUuid(e.getUuid());
+                    data.put("ports", ports);
+                    Map<String, Map<String, Object>> portEle = this.portEle(e.getIp());
+                    if(portEle != null && !portEle.isEmpty()){
+                        ports.stream().forEach(ele ->{
+                            Map<String, Object> item = portEle.get(ele.get("name"));
+                            if(!item.isEmpty()){
+                                item.forEach((k, v) -> ele.merge(k, v, (v1, v2) -> v2));
+                            }
+                        });
+                    }
                 }
-                // 端口信息
-                List<Map<String, Object>> ports = this.topologyService.getDevicePortsByUuid(e.getUuid());
-                data.put("ports", ports);
                 list.add(data);
             });
         model.addAttribute("datas", list);
-
     }
 
-//    public void getData(Model model, String ip){
-//        Map data = deviceInfo(ip);
-//        model.addAttribute("ip", ip);
-//        model.addAttribute("deviceName", data.get("deviceName"));
-//        model.addAttribute("upTime", data.get("upTime"));
-//        model.addAttribute("description", data.get("description"));
-//        boolean available = this.interfaceUtil.verifyHostIsAvailable(ip);
-//        if(available) {
-//            List<DeviceType> nes = this.deviceTypeService.selectCountByJoin();
-//            List list1 = new ArrayList();
-//            DeviceType network = new DeviceType();
-//            network.setName("网元总数");
-//            if (nes.size() > 0) {
-//                int j = 0;
-//                for (DeviceType deviceType : nes) {
-//                    int n = 0;
-//                    if (deviceType.getNetworkElementList().size() > 0) {
-//                        for (NetworkElement ne : deviceType.getNetworkElementList()) {
-//                            if (ne.getIp() != null) {
-//                                Interface obj = this.interfaceService.selectObjByIp(ne.getIp());
-//                                if (obj != null) {
-//                                    if (obj.getAvailable().equals("1")) {
-//                                        n++;
-//                                        j++;
-//                                    }
-//                                }
-//                            }
-//                        }
-//                        deviceType.getNetworkElementList().clear();
-//                        deviceType.setOnlineCount(n);
-//                    }
-//                    list1.add(deviceType);
-//                }
-//                int count = nes.stream().mapToInt(e -> e.getCount()).sum();
-//                network.setCount(count);
-//                network.setOnlineCount(j);
-//            }
-//            list1.add(0, network);
-//            model.addAttribute("ne", JSONObject.toJSONString(list1));
-//            List<DeviceType> list2 = new ArrayList();
-//            DeviceType terminal = new DeviceType();
-//            terminal.setName("终端总数");
-//            List<DeviceType> terminals = this.deviceTypeService.selectTerminalCountByJoin();
-//            if (terminals.size() > 0) {
-//                for (DeviceType deviceType : terminals) {
-//                    int n = deviceType.getTerminalList().stream().mapToInt(e -> e.getOnline() == true ? 1 : 0).sum();
-//                    deviceType.setOnlineCount(n);
-//                    deviceType.getTerminalList().clear();
-//                    list2.add(deviceType);
-//                }
-//                int count = terminals.stream().mapToInt(e -> e.getCount()).sum();
-//                terminal.setCount(count);
-//                int onlineCount = list2.stream().mapToInt(e -> e.getOnlineCount()).sum();
-//                terminal.setOnlineCount(onlineCount);
-//            }
-//            list2.add(0, terminal);
-//            model.addAttribute("terminal", JSONObject.toJSONString(list2));
-//
-//            // 网元总数
-//            List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
-//            model.addAttribute("networkElements", networkElements);
-//
-//            // 确定标签
-//            Interface anInterface = this.interfaceService.selectObjByIp(ip);
-//            if (anInterface != null) {
-//                Map params = new HashMap();
-//                params.put("ip", ip);
-//                params.put("cpu", Global.BOARDCPU);
-//                params.put("mem", Global.BOARDMEM);
-//                params.put("temp", Global.BOARDTEMP);
-//                List<ItemTag> itemTags = this.itemTagService.queryBoardByMap(params);
-//
-//                Calendar calendar = Calendar.getInstance();
-//                Long time_till = calendar.getTimeInMillis() / 1000;
-//                calendar.set(Calendar.HOUR_OF_DAY, new Date().getHours() - 1);
-//                Long time_from = calendar.getTimeInMillis() / 1000;
-//                if (itemTags.size() > 0) {
-//                    // 查找是否存在 boardcpu|不在查询CPu和内存使用率
-//                    List<ItemTagBoardVO> boards = this.itemTagService.selectBoard(ip, time_from, time_till);
-//                    if (boards.size() > 0) {
-//                        ItemTagBoardVO ele = boards.get(0);
-//                        model.addAttribute("cpu", JSONObject.toJSONString(ele.getCpu()));
-//                        model.addAttribute("mem", JSONObject.toJSONString(ele.getMem()));
-//                        model.addAttribute("temp", JSONObject.toJSONString(ele.getTemp()));
-//                    }
-//                } else {
-//                    List names = Arrays.asList(
-//                            "cpuusage",
-//                            "memusage",
-//                            "temp");
-//                    ItemTagBoardVO board = this.zabbixService.getBoard(ip, names, 0, time_till, time_from);
-//                    if (board != null) {
-//                        model.addAttribute("cpu", JSONObject.toJSONString(board.getCpu()));
-//                        model.addAttribute("mem", JSONObject.toJSONString(board.getMem()));
-//                        model.addAttribute("temp", JSONObject.toJSONString(board.getTemp()));
-//                    }
-//                }
-//            }
-//        }
-//    }
+    public Map<String, Map<String, Object>> portEle(String ip){
+        // 端口信息
+        Map<String, Map<String, Object>> port_ele = new HashMap<String, Map<String, Object>>();
+        // selectItemTagByMap
+        Map params = new HashMap();
+        params.put("ip", ip);
+        params.put("tags", Arrays.asList("ifsent", "ifreceived", "ifspeed", "indiscards", "inerrors", "outdiscards", "outerrors", "iftype"));// , "ifreceived", "ifspeed", "indiscards", "inerrors", "outdiscards", "outerrors"
+        List<Item> items = this.itemMapper.selectItemTagByMap(params);
+        if (items.size() > 0) {
+            items.stream().forEach(item -> {
+                List<ItemTag> tags = item.getItemTags();
+                if (tags != null && tags.size() > 0) {
+                     Map ele = new HashMap();
+                    String name = "";
+                    for (ItemTag tag : tags) {
+                        Object value = tag.getValue();
+                        if (tag.getTag().equals("ifname")) {
+                            ele.put(value, value);
+                            name = String.valueOf(value);
+                        }if (tag.getTag().equals("interface")) {
+                            ele.put(value, value);
+                            name = String.valueOf(value);
+                        }
+                        if (tag.getTag().equals("ifsent")) {
+                            ele.put("ifsent", value);
+                        }
+                        if (tag.getTag().equals("ifreceived")) {
+                            ele.put("ifreceived", value);
+                        }
+                        if (tag.getTag().equals("ifspeed")) {
+                            ele.put("ifspeed", value);
+                        }
+                        if (tag.getTag().equals("indiscards")) {
+                            ele.put("indiscards", value);
+                        }
+                        if (tag.getTag().equals("inerrors")) {
+                            ele.put("inerrors", value);
+                        }
+                        if (tag.getTag().equals("outdiscards")) {
+                            ele.put("outdiscards", value);
+                        }
+                        if (tag.getTag().equals("outerrors")) {
+                            ele.put("outerrors", value);
+                        }
+                        if (tag.getTag().equals("iftype")) {
+                            if(value != null && !value.equals("")){
+                                ele.put("iftype", PortTypeEnums.codeOf(Integer.parseInt(value.toString())).getFiled());
+                            }
+                        }
+                    }
+                    if(!name.equals("")){
+                        Map map = port_ele.get(name);
+                        if(map != null && !map.isEmpty()){
+                            ele.forEach((k, v) -> map.merge(k, v, (v1, v2) -> v2));
+                        }else{
+                            port_ele.put(name, ele);
+                        }
+                    }
+                }
+            });
+        }
+        return port_ele;
+    }
 
     @RequestMapping("/createHtml")
     public void createHtml(HttpServletResponse response) throws Exception {
@@ -422,41 +393,46 @@ public class FreemarkerController {
             data.put("deviceName", e.getDeviceName());
             data.put("upTime", data.get("upTime"));
             data.put("description", data.get("description"));
-            // 确定标签
-            Interface anInterface = this.interfaceService.selectObjByIp(e.getIp());
-            if (anInterface != null) {
-                Map params = new HashMap();
-                params.put("ip", e.getIp());
-                params.put("cpu", Global.BOARDCPU);
-                params.put("mem", Global.BOARDMEM);
-                params.put("temp", Global.BOARDTEMP);
-                List<ItemTag> itemTags = this.itemTagService.queryBoardByMap(params);
+            if(available){
+                // 确定标签
+                Interface anInterface = this.interfaceService.selectObjByIp(e.getIp());
+                if (anInterface != null) {
+                    Map params = new HashMap();
+                    params.put("ip", e.getIp());
+                    params.put("cpu", Global.BOARDCPU);
+                    params.put("mem", Global.BOARDMEM);
+                    params.put("temp", Global.BOARDTEMP);
+                    List<ItemTag> itemTags = this.itemTagService.queryBoardByMap(params);
 
-                Calendar calendar = Calendar.getInstance();
-                Long time_till = calendar.getTimeInMillis() / 1000;
-                calendar.set(Calendar.HOUR_OF_DAY, new Date().getHours() - 1);
-                Long time_from = calendar.getTimeInMillis() / 1000;
-                if (itemTags.size() > 0) {
-                    // 查找是否存在 boardcpu|不在查询CPu和内存使用率
-                    List<ItemTagBoardVO> boards = this.itemTagService.selectBoard(e.getIp(), time_from, time_till);
-                    if (boards.size() > 0) {
-                        ItemTagBoardVO ele = boards.get(0);
-                        data.put("cpu", JSONObject.toJSONString(ele.getCpu()));
-                        data.put("mem", JSONObject.toJSONString(ele.getMem()));
-                        data.put("temp", JSONObject.toJSONString(ele.getTemp()));
-                    }
-                } else {
-                    List names = Arrays.asList(
-                            "cpuusage",
-                            "memusage",
-                            "temp");
-                    ItemTagBoardVO board = this.zabbixService.getBoard(e.getIp(), names, 0, time_till, time_from);
-                    if (board != null) {
-                        data.put("cpu", JSONObject.toJSONString(board.getCpu()));
-                        data.put("mem", JSONObject.toJSONString(board.getMem()));
-                        data.put("temp", JSONObject.toJSONString(board.getTemp()));
+                    Calendar calendar = Calendar.getInstance();
+                    Long time_till = calendar.getTimeInMillis() / 1000;
+                    calendar.set(Calendar.HOUR_OF_DAY, new Date().getHours() - 1);
+                    Long time_from = calendar.getTimeInMillis() / 1000;
+                    if (itemTags.size() > 0) {
+                        // 查找是否存在 boardcpu|不在查询CPu和内存使用率
+                        List<ItemTagBoardVO> boards = this.itemTagService.selectBoard(e.getIp(), time_from, time_till);
+                        if (boards.size() > 0) {
+                            ItemTagBoardVO ele = boards.get(0);
+                            data.put("cpu", JSONObject.toJSONString(ele.getCpu()));
+                            data.put("mem", JSONObject.toJSONString(ele.getMem()));
+                            data.put("temp", JSONObject.toJSONString(ele.getTemp()));
+                        }
+                    } else {
+                        List names = Arrays.asList(
+                                "cpuusage",
+                                "memusage",
+                                "temp");
+                        ItemTagBoardVO board = this.zabbixService.getBoard(e.getIp(), names, 0, time_till, time_from);
+                        if (board != null) {
+                            data.put("cpu", JSONObject.toJSONString(board.getCpu()));
+                            data.put("mem", JSONObject.toJSONString(board.getMem()));
+                            data.put("temp", JSONObject.toJSONString(board.getTemp()));
+                        }
                     }
                 }
+                // 端口信息
+                List<Map<String, Object>> ports = this.topologyService.getDevicePortsByUuid(e.getUuid());
+                data.put("ports", ports);
             }
             list.add(data);
         });

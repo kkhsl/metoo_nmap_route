@@ -138,14 +138,14 @@
             <if test="deleteStatus != null and deleteStatus != ''">
                 AND deleteStatus = #{deleteStatus}
             </if>
-            <if test="name != null and userId != ''">
+            <if test="name != null and name != ''">
                 AND `name` = #{name}
             </if>
             <if test="userId != null and userId != ''">
                 AND user_id = #{userId}
             </if>
-            <if test="plantRootId != null and plantRootId != ''">
-                AND id != #{plantRootId}
+            <if test="plantRoomId != null and plantRoomId != ''">
+                AND id != #{plantRoomId}
             </if>
         </where>
     </select>
@@ -160,11 +160,11 @@
             <if test="userId != null and userId != ''">
                 AND user_id = #{userId}
             </if>
-            <if test="name != null and userId != ''">
+            <if test="name != null and name != ''">
                 AND `name` = #{name}
             </if>
-            <if test="plantRootId != null and plantRootId != ''">
-                AND id != #{plantRootId}
+            <if test="plantRoomId != null and plantRoomId != ''">
+                AND id != #{plantRoomId}
             </if>
         </where>
     </select>

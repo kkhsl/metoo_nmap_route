@@ -8,6 +8,14 @@ public class Global {
     public static final String BOARDMEM = "boardmem";
     public static final String BOARDTEMP = "boardtemp";
 
+    public static final String TOPOLOGYFILEPATH = "/opt/nmap/resource";// 拓扑自定义分区文件存储路径
+
+    public static final String DBPATH = "/opt/nmap/resource/db";
+//    public static final String DBPATH = "C:\\Users\\Administrator\\Desktop\\backup\\db";
+
+
+//    public static final String TOPOLOGYFILEPATH = "C:\\Users\\Administrator\\Desktop\\新建文件夹 (3)";
+
     public Global() {
     }
 

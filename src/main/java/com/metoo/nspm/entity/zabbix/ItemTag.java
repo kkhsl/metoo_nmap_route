@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import java.util.List;
 
 @ApiModel("item 标签类")
@@ -16,6 +17,7 @@ public class ItemTag {
     private Long itemtagid;
     private Long itemid;
     private String tag;
+    @Column(columnDefinition = "LONGTEXT")
     private String value;
     private String name;
     private String description;

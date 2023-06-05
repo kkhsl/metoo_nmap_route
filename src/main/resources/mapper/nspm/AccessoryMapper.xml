@@ -25,9 +25,21 @@
     </select>
 
     <select id="query" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List" />
+        SELECT
+          <include refid="Base_Column_List" />
         FROM metoo_accessory
         LIMIT #{startRow}, #{pageSize};
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM metoo_accessory
+        <where>
+            <if test="name != null and name != ''">
+                  AND `name` = #{name}
+            </if>
+        </where>
     </select>
 
     <insert id="save" parameterType="com.metoo.nspm.entity.nspm.Accessory" keyProperty="id" useGeneratedKeys="true">

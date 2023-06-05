@@ -9,6 +9,8 @@ import com.metoo.nspm.core.service.api.zabbix.ZabbixService;
 import com.metoo.nspm.core.service.nspm.*;
 import com.metoo.nspm.core.manager.admin.tools.CompareUtils;
 import com.metoo.nspm.core.service.zabbix.ItemService;
+import com.metoo.nspm.core.utils.Global;
+import com.metoo.nspm.core.utils.MyStringUtils;
 import com.metoo.nspm.core.utils.ResponseUtil;
 import com.metoo.nspm.core.utils.file.DownLoadFileUtil;
 import com.metoo.nspm.core.utils.network.IpUtil;
@@ -29,10 +31,13 @@ import org.nutz.json.Json;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.test.annotation.Repeat;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.Access;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.ws.Response;
 import java.io.File;
@@ -547,7 +552,7 @@ public class TopologyManagerController {
     @PostMapping("/device/rout")
     public Object deviceRoutList(@RequestBody RoutDTO dto){
         String ip = "";
-        Integer maskBit = 0;
+
         if(StringUtil.isEmpty(dto.getDeviceUuid())){
             return ResponseUtil.badArgument("请选择设备");
         }else{
@@ -555,14 +560,13 @@ public class TopologyManagerController {
             if(destination != null && !destination.equals("")){
                 boolean cidr = IpV4Util.verifyCidr(destination);
                 if(cidr){
-                    maskBit = Integer.parseInt(destination.replaceAll(".*/",""));
                     ip = destination.replaceAll("/.*","");
                     dto.setDestination(ip);
                 }else{
                     boolean flag = IpV4Util.verifyIp(destination);
                     if(flag){
                         ip = destination;
-                        maskBit = 32;
+
                     }else{
                         return ResponseUtil.badArgument();
                     }
@@ -608,13 +612,28 @@ public class TopologyManagerController {
         return ResponseUtil.ok();
     }
 
-    @ApiOperation("拓扑文件上传")
+//    @ApiOperation("拓扑文件上传:自定义分区图片")
+//    @RequestMapping("/upload")
+//    public Object upload(
+//            @RequestParam(value = "file", required = false) MultipartFile file){
+//        if(file != null && file.getSize() > 0){
+//            String accessory = this.uploadFile(file);
+//            if(Strings.isNotBlank(accessory)){
+//                return ResponseUtil.ok(accessory);
+//            }else{
+//                return ResponseUtil.error();
+//            }
+//        }
+//        return ResponseUtil.badArgument();
+//    }
+
+    @ApiOperation("拓扑文件上传:自定义分区图片")
     @RequestMapping("/upload")
     public Object upload(
-            @RequestParam(value = "file", required = false) MultipartFile file){
+            @RequestParam(value = "file", required = false) MultipartFile file, String fileName){
         if(file != null && file.getSize() > 0){
             String accessory = this.uploadFile(file);
-//            boolean a = this.winUploadFile(file);
+            this.asyncDeleteFile(fileName);
             if(Strings.isNotBlank(accessory)){
                 return ResponseUtil.ok(accessory);
             }else{
@@ -624,16 +643,36 @@ public class TopologyManagerController {
         return ResponseUtil.badArgument();
     }
 
+    @Async
+    public void asyncDeleteFile(String fileName){
+        // 删除服务器文件
+        try {
+            if(Strings.isNotBlank(fileName) && fileName.contains("/images/")){
+                // 截取文件名
+                int n1 = MyStringUtils.acquireCharacterPosition(fileName, "/", 2);
+                int n2 = fileName.indexOf(".");
+                String name = fileName.substring(n1 + 1, n2);
+
+                Map params = new HashMap();
+                params.put("name", name);
+                List<Accessory> accessories = this.accessoryService.selectObjByMap(params);
+                if(accessories.size() > 0){
+                    Accessory accessory1 = accessories.get(0);
+                    String path = Global.TOPOLOGYFILEPATH + "/" + accessory1.getA_name() + accessory1.getA_ext();
+                    FileSystemUtils.deleteRecursively(new File(path));
+                    this.accessoryService.delete(accessory1.getId());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public String uploadFile(@RequestParam(required = false) MultipartFile file){
-        String path = "/opt/nmap/resource";
+        String path = Global.TOPOLOGYFILEPATH;
         String originalName = file.getOriginalFilename();
-//        String fileName = UUID.randomUUID().toString().replace("-", "");
         String ext = originalName.substring(originalName.lastIndexOf("."));
-//        String picNewName = fileName + ext;
-//        String imgRealPath = path  + "/" + picNewName;
-        Date currentDate = new Date();
-        String fileName1 = DateTools.getCurrentDate(currentDate);
-//        String imgRealPath = path  + "/" + picNewName;
+        String fileName1 = DateTools.getCurrentDate(new Date());
         java.io.File imageFile = new File(path +  "/" + fileName1 + ext);
         if (!imageFile.getParentFile().exists()) {
             imageFile.getParentFile().mkdirs();
@@ -648,8 +687,6 @@ public class TopologyManagerController {
             accessory.setType(4);
             this.accessoryService.save(accessory);
             String picNewName = fileName1 + ext;
-//            String patha = "http://127.0.0.1/images" + "/" + picNewName;
-//            String patha = /*"/opt/nmap/resource" + "/" +*/ picNewName;
             String patha = /*"/opt/nmap/resource" + "/" +*/ "/images/" + picNewName;
             return patha;
         } catch (IOException e) {

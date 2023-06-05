@@ -91,7 +91,7 @@ public class ResponseUtil {
         return new Result(501, "Cannot delete, delete the associated item first");
     }
 
-    public static Object error() { return new Result(500, "Submit failure");  }
+    public static Object error() { return new Result(500, "系统异常");  }
 
     public static Object error(String message) { return new Result(500, message);  }
 

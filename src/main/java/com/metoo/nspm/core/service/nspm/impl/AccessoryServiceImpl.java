@@ -41,4 +41,9 @@ public class AccessoryServiceImpl implements IAccessoryService {
     public List<Accessory> query(Map params) {
         return this.accessoryMapper.query(params);
     }
+
+    @Override
+    public List<Accessory> selectObjByMap(Map params) {
+        return this.accessoryMapper.selectObjByMap(params);
+    }
 }

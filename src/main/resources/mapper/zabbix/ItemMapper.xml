@@ -36,6 +36,15 @@
         </collection>
     </resultMap>
 
+
+    <resultMap id="Item_Result_Map" type="com.metoo.nspm.entity.zabbix.Item">
+        <result column="itemid" property="itemid"></result>
+        <collection property="itemTags" javaType="list" ofType="com.metoo.nspm.entity.zabbix.ItemTag">
+            <result column="tag" property="tag"></result>
+            <result column="value" property="value"></result>
+        </collection>
+    </resultMap>
+
     <select id="query" parameterType="java.lang.String" resultMap="ItemArp_Result_Map">
         SELECT item_tag.*
         FROM (
@@ -387,7 +396,7 @@
     </select>
 
 
-    <select id="selectItemTagByMap" parameterType="java.util.Map" resultMap="ItemArp_Result_Map">
+    <select id="selectItemTagByMap" parameterType="java.util.Map" resultMap="Item_Result_Map">
         SELECT
         item_tag.*
         FROM (

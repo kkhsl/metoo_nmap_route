@@ -16,4 +16,6 @@ public interface IAccessoryService {
     int delete(Long id);
 
     List<Accessory> query(Map params);
+
+    List<Accessory> selectObjByMap(Map params);
 }

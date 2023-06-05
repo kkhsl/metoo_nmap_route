@@ -43,4 +43,7 @@ public interface AccessoryMapper {
      * @return
      */
     List<Accessory> query(Map params);
+
+    List<Accessory> selectObjByMap(Map params);
+
 }
