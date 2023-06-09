@@ -562,7 +562,7 @@ public class NetworkElementManagerController {
                 instance.setInterfaceName("Port0");
             }
             if(deviceType.getType() == 12){
-                instance.setInterfaceName("Port0");
+                instance.setInterfaceName("Port");
             }
             if(ne != null && !ne.getDeviceTypeName().equals(deviceType.getName())){
                 deviceTypeName = deviceType.getName();

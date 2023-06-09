@@ -1,9 +1,13 @@
-FROM java:8
+FROM openjdk:8-jdk-alpine
 
-COPY *.jar /app.jar
+MAINTAINER whhc
 
-CMD ["--server.port=8080"]
+WORKDIR /opt/java/project/nmap/release
+
+ADD nmap.jar /opt/java/project/nmap/release/nmap.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","jar","/app.jar"]
+ENTRYPOINT ["java", "-server", "-Xms512m", "-Xmx512m", "-jar", "/opt/java/project/nmap/release/nmap.jar"]
+
+

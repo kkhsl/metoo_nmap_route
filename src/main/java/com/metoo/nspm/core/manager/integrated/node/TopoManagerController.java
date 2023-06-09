@@ -36,12 +36,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.junit.Test;
 import org.nutz.json.Json;
+import org.nutz.mvc.annotation.GET;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Path;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
@@ -558,39 +560,72 @@ public class TopoManagerController {
 
     }
 
+//    @ApiOperation("设备信息")
+//    @RequestMapping("/topology-layer/deviceInfo")
+//    public Object deviceInfo(@RequestBody(required = false) TopoNodeDto dto){
+//        String ip = dto.getIp();
+//        if(StringUtils.isEmpty(ip)){
+//            return ResponseUtil.badArgument();
+//        }
+//        boolean available = this.interfaceUtil.verifyHostIsAvailable(ip);
+//        if(available){
+//            List names = Arrays.asList(
+//                    "systemname",
+//                    "systemdescription",
+//                    "uptime");
+//            Map map = this.zabbixService.getDevice(dto.getIp(),
+//                    names,
+//                    null,
+//                    null,
+//                    null);
+//            return ResponseUtil.ok(map);
+//        }else{
+//            Map params = new HashMap();
+//            params.clear();
+//            params.put("ip", ip);
+//            List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
+//            if(networkElements.size() > 0){
+//                NetworkElement networkElement = networkElements.get(0);
+//                Map map = new HashMap();
+//                map.put("System name", networkElement.getDeviceName());
+//                map.put("System description", networkElement.getDescription());
+//                return ResponseUtil.ok(map);
+//            }
+//        }
+//        return ResponseUtil.ok();
+//    }
+
     @ApiOperation("设备信息")
-    @RequestMapping("/topology-layer/deviceInfo")
-    public Object deviceInfo(@RequestBody(required = false) TopoNodeDto dto){
-        String ip = dto.getIp();
-        if(StringUtils.isEmpty(ip)){
+    @GetMapping("/topology-layer/deviceInfo/{uuid}")
+    public Object deviceInfo(@PathVariable String uuid){
+        NetworkElement ne = this.networkElementService.selectObjByUuid(uuid);
+        if(ne == null){
             return ResponseUtil.badArgument();
         }
-        boolean available = this.interfaceUtil.verifyHostIsAvailable(ip);
-        if(available){
-            List names = Arrays.asList(
-                    "systemname",
-                    "systemdescription",
-                    "uptime");
-            Map map = this.zabbixService.getDevice(dto.getIp(),
-                    names,
-                    null,
-                    null,
-                    null);
-            return ResponseUtil.ok(map);
-        }else{
-            Map params = new HashMap();
-            params.clear();
-            params.put("ip", ip);
-            List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
-            if(networkElements.size() > 0){
-                NetworkElement networkElement = networkElements.get(0);
-                Map map = new HashMap();
-                map.put("System name", networkElement.getDeviceName());
-                map.put("System description", networkElement.getDescription());
+        if(Strings.isNotBlank(ne.getIp())){
+            boolean available = this.interfaceUtil.verifyHostIsAvailable(ne.getIp());
+            if(available){
+                List names = Arrays.asList(
+                        "systemname",
+                        "systemdescription",
+                        "uptime");
+                Map map = this.zabbixService.getDevice(ne.getIp(),
+                        names,
+                        null,
+                        null,
+                        null);
                 return ResponseUtil.ok(map);
+            }else{
+                    Map map = new HashMap();
+                    map.put("System name", ne.getDeviceName());
+                    map.put("System description", ne.getDescription());
+                    return ResponseUtil.ok(map);
             }
+        }else{
+            Map map = new HashMap();
+            map.put("System name", ne.getDeviceName());
+            return ResponseUtil.ok(map);
         }
-        return ResponseUtil.ok();
     }
 
 

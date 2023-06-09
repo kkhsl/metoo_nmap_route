@@ -25,6 +25,7 @@
         <result column="credential_id" property="credentialId"></result>
         <result column="web_url" property="webUrl"></result>
         <result column="permit_connect" property="permitConnect"></result>
+        <result column="port_index" property="portIndex"></result>
     </resultMap>
 
     <resultMap id="Accessory_Ne_Map" type="com.metoo.nspm.entity.nspm.NetworkElement">
@@ -178,6 +179,9 @@
             <if test="interfaceName != null and interfaceName != ''">
                 interface_name,
             </if>
+            <if test="portIndex != null and portIndex != ''">
+                port_index,
+            </if>
             <if test="interfaceNames != null and interfaceNames != ''">
                 interface_names,
             </if>
@@ -245,6 +249,12 @@
                 </if>
                 <if test="interfaceName != null and interfaceName != ''">
                     #{interfaceName},
+                </if>
+                <if test="portIndex != null and portIndex != ''">
+                    #{portIndex},
+                </if>
+                <if test="interfaceNames != null and interfaceNames != ''">
+                    #{interfaceNames},
                 </if>
                 <if test="flux != null and flux != ''">
                     #{flux},
@@ -344,6 +354,9 @@
             </if>
             <if test="interfaceName != null and interfaceName != ''">
                 interface_name = #{interfaceName},
+            </if>
+            <if test="portIndex != null and portIndex != ''">
+                port_index = #{portIndex},
             </if>
             <if test="interfaceNames != null and interfaceNames != ''">
                 interface_names = #{interfaceNames},

@@ -1,26 +1,33 @@
 package com.metoo.nspm.core.manager.admin.action;
 
 import com.github.pagehelper.Page;
+import com.metoo.nspm.core.manager.admin.tools.DateTools;
 import com.metoo.nspm.core.service.nspm.IBackupSqlService;
 import com.metoo.nspm.core.utils.Global;
 import com.metoo.nspm.core.utils.MyStringUtils;
 import com.metoo.nspm.core.utils.ResponseUtil;
+import com.metoo.nspm.core.utils.file.DownLoadFileUtil;
+import com.metoo.nspm.core.utils.file.FileUtil;
 import com.metoo.nspm.core.utils.query.PageInfo;
 import com.metoo.nspm.dto.BackupSqlDTO;
-import com.metoo.nspm.entity.nspm.Accessory;
-import com.metoo.nspm.entity.nspm.BackupSql;
-import com.metoo.nspm.entity.nspm.NetworkElement;
+import com.metoo.nspm.entity.nspm.*;
+import io.swagger.annotations.ApiOperation;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.ws.Response;
 import java.io.*;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 数据库维护
@@ -126,19 +133,32 @@ public class BackupSqlController {
 
         //拼接命令行的命令
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("mysqldump").append(" --opt").append(" -h").append("nmap-mysql");
-        stringBuilder.append(" --user=").append("root").append(" --password=").append("metoo89745000")
+        stringBuilder
+                .append("mysqldump")
+                .append(" --opt")
+                .append(" -h")
+                .append("nmap-mysql");
+        stringBuilder
+                .append(" --user=")
+                .append("root")
+                .append(" --password=")
+                .append("metoo89745000")
                 .append(" --lock-all-tables=true");
-        stringBuilder.append(" --result-file=").append(savePath + fileName).append(" --default-character-set=utf8 ")
+        stringBuilder
+                .append(" --result-file=")
+                .append(savePath + fileName)
+                .append(" --default-character-set=utf8 ")
                 .append("nmap");
         // 追加表名
 
-//        stringBuilder.append(" rsms_terminal rsms_device ");
+        stringBuilder.append(" rsms_terminal rsms_device ");
         try {
             System.out.println(stringBuilder.toString());
             //调用外部执行exe文件的javaAPI
             Process process = Runtime.getRuntime().exec(stringBuilder.toString());
-            if (process.waitFor() == 0) {// 0 表示线程正常终止
+            process.waitFor(10000, TimeUnit.MILLISECONDS);
+            // 0 表示线程正常终止
+            if (process.waitFor() == 0) {
                 // 创建记录
                 BackupSql backupSql = this.backupSqlService.selectObjByName(name);
                 if(backupSql == null){
@@ -148,6 +168,19 @@ public class BackupSqlController {
                 backupSql.setSize(this.getSize(Global.DBPATH + "/" + name));
                 this.backupSqlService.save(backupSql);
                 return ResponseUtil.ok();
+            }else{
+                //输出返回的错误信息
+                StringBuffer mes = new StringBuffer();
+                String tmp = "";
+                BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                while((tmp = error.readLine()) != null){
+                    mes.append(tmp + "\n");
+                }
+                if(mes != null || !"".equals(mes) ){
+                    System.out.println("备份成功!==>" + mes.toString());
+                }
+                error.close();
+                return ResponseUtil.error(mes.toString());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -155,6 +188,60 @@ public class BackupSqlController {
             e.printStackTrace();
         }
         return ResponseUtil.error();
+    }
+
+    @PutMapping("/recover/{id}")
+    public Object recoverSBackup(@PathVariable Long id){
+        BackupSql backupSql = this.backupSqlService.selectObjById(id);
+        if(backupSql != null){
+            //拼接命令行的命令
+            StringBuilder sb = new StringBuilder();
+            sb.append("mysql");
+            sb.append(" -h "+ "nmap-mysql");
+            sb.append(" -P"+ "3306");
+            sb.append(" -u"+ "root");
+            sb.append(" -p"+ "metoo89745000");
+            sb.append(" "+ "nmap" + " --default-character-set=utf8  < ");
+            sb.append(Global.DBPATH + "/" + backupSql.getName() + "/" + "nmap" + ".sql");
+//            sb.append("/opt/nmap/resource/db/backup1/nmap.sql");
+            Process ps = null;
+            InputStream is = null;
+            BufferedReader bf = null;
+            System.out.println(sb.toString());
+            try {
+                ps = Runtime.getRuntime().exec(new String[]{"/bin/sh","-c", sb.toString()});
+//                String[] command = {"/bin/sh", "-c", sb.toString()};
+                // "mysql -hnmap-mysql -uroot -pmetoo89745000 nmap -e 'source /opt/nmap/resource/db/backup1/nmap.sql'"
+//                process = Runtime.getRuntime().exec(command);
+                is = ps.getInputStream();
+                bf = new BufferedReader(new InputStreamReader(is,"utf8"));
+                String line = null;
+                StringBuffer msg = new StringBuffer();
+                while ((line=bf.readLine())!=null){
+                    System.out.println(line);
+                    msg.append(line);
+                }
+                return ResponseUtil.ok(msg);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if(is != null){
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(bf != null){
+                    try {
+                        bf.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return ResponseUtil.badArgument();
     }
 
     @GetMapping("/get/size")
@@ -233,5 +320,45 @@ public class BackupSqlController {
             return ResponseUtil.error();
         }
         return ResponseUtil.badArgument();
+    }
+
+    @Autowired
+    private FileUtil fileUtil;
+
+    // 上传
+    @ApiOperation("上传")
+    @RequestMapping("/upload")
+    public Object uploadConfig(@RequestParam(value = "file", required = false) MultipartFile file, String name){
+            if(file != null){
+                boolean accessory = this.fileUtil.uploadFile(file, name,  ".sql", Global.DBPATH);
+                if(accessory){
+                    return ResponseUtil.ok();
+                }else{
+                    return ResponseUtil.error();
+                }
+            }
+        return ResponseUtil.badArgument();
+    }
+    // 下载
+
+    @GetMapping("/down/{id}")
+    public Object down(@PathVariable Long id, HttpServletResponse response){
+        BackupSql backupSql = this.backupSqlService.selectObjById(id);
+        if(backupSql != null){
+            String path = Global.DBPATH + File.separator + backupSql.getName() + File.separator + Global.DBNAME + ".sql";
+            File file = new File(path);
+            if (file.getParentFile().exists()) {
+                boolean flag = DownLoadFileUtil.downloadZip(file, response);
+                if (flag) {
+                    return ResponseUtil.ok();
+                } else {
+                    return ResponseUtil.error("文件下载失败");
+                }
+            } else {
+                return ResponseUtil.badArgument("文件下载失败");
+            }
+        }
+        return ResponseUtil.badArgument();
+
     }
 }

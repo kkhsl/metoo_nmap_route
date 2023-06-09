@@ -11,6 +11,8 @@ public class Global {
     public static final String TOPOLOGYFILEPATH = "/opt/nmap/resource";// 拓扑自定义分区文件存储路径
 
     public static final String DBPATH = "/opt/nmap/resource/db";
+    public static final String DBNAME = "nmap";
+    public static final String DBPATHLOCAL = "C:\\Users\\Administrator\\Desktop\\backup\\dblocal";
 //    public static final String DBPATH = "C:\\Users\\Administrator\\Desktop\\backup\\db";
 
 

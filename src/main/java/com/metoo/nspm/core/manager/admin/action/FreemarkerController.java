@@ -75,6 +75,10 @@ public class FreemarkerController {
     @Autowired
     private ItemMapper itemMapper;
 
+    public static void main(String[] args) {
+        System.out.println(PortTypeEnums.codeOf(Integer.parseInt("12322")).getFiled());;
+    }
+
     @RequestMapping("/html")
     public String html(Model model){
         Result result = new Result();
@@ -433,6 +437,15 @@ public class FreemarkerController {
                 // 端口信息
                 List<Map<String, Object>> ports = this.topologyService.getDevicePortsByUuid(e.getUuid());
                 data.put("ports", ports);
+                Map<String, Map<String, Object>> portEle = this.portEle(e.getIp());
+                if(portEle != null && !portEle.isEmpty()){
+                    ports.stream().forEach(ele ->{
+                        Map<String, Object> item = portEle.get(ele.get("name"));
+                        if(!item.isEmpty()){
+                            item.forEach((k, v) -> ele.merge(k, v, (v1, v2) -> v2));
+                        }
+                    });
+                }
             }
             list.add(data);
         });

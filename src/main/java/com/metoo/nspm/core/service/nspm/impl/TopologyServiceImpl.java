@@ -261,6 +261,7 @@ public class TopologyServiceImpl implements ITopologyService {
         String name = "";
         String ip = "";
         Integer type = -1;
+        int portIndex = 0;
         if(networkElements.size() > 0){
             NetworkElement networkElement = networkElements.get(0);
             DeviceType deviceType = this.deviceTypeService.selectObjById(networkElement.getDeviceTypeId());
@@ -269,6 +270,9 @@ public class TopologyServiceImpl implements ITopologyService {
             }
             ip = networkElement.getIp();
             name = networkElement.getInterfaceName();
+            if(type == 12){
+                portIndex = networkElement.getPortIndex() != null ? networkElement.getPortIndex() : 0;
+            }
         }
         List<Map<String, Object>> list = new ArrayList();
         if(type != 10 && type != 12 && type != -1){
@@ -415,11 +419,22 @@ public class TopologyServiceImpl implements ITopologyService {
                 }
             }
         }else{
-            Map map = new HashMap();
-            map.put("name", name);
-            map.put("status", "up");
-            map.put("ip", ip);
-            list.add(map);
+//            Map map = new HashMap();
+//            map.put("name", name);
+//            map.put("status", "up");
+//            map.put("ip", ip);
+//            map.put("portIndex", portIndex);
+//            map.put("type", type);
+            List portList = new ArrayList();
+            if(type == 12 && portIndex > 0){
+                for (int i = 0; i < portIndex; i++) {
+                    Map portMap = new HashMap();
+                    portMap.put("ip", ip);
+                    portMap.put("name", name + i);
+                    portMap.put("status", "up");
+                    list.add(portMap);
+                }
+            }
         }
         if(list != null && list.size() > 0){
             ListSortUtil.sortStr(list);

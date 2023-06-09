@@ -9,7 +9,8 @@ public enum PortTypeEnums {
     five(117, "gigabitEthernet"),
     six(135, "l2vlan"),
     seven(136, "l3ipvlan"),
-    eight(150, "mplsTunnel "),;
+    eight(150, "mplsTunnel"),
+    negative(-1, ""),;
 
     private final Integer value;
     private final String filed;
@@ -27,13 +28,27 @@ public enum PortTypeEnums {
         return filed;
     }
 
+//    public static PortTypeEnums codeOf(int code) {
+//        for (PortTypeEnums prizes : values()) {
+//            if (prizes.getValue() == code) {
+//                return prizes;
+//            }
+//        }
+//        throw new RuntimeException("没有找到对应的枚举");
+//    }
+
     public static PortTypeEnums codeOf(int code) {
-        for (PortTypeEnums prizes : values()) {
-            if (prizes.getValue() == code) {
-                return prizes;
+        try {
+            for (PortTypeEnums prizes : values()) {
+                if (prizes.getValue() == code) {
+                    return prizes;
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return PortTypeEnums.negative;
         }
-        throw new RuntimeException("没有找到对应的枚举");
+        return PortTypeEnums.negative;
     }
 
     public static void main(String[] args) {

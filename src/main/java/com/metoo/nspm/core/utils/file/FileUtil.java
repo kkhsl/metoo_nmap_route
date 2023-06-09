@@ -1,9 +1,17 @@
 package com.metoo.nspm.core.utils.file;
 
+import com.metoo.nspm.core.service.nspm.IAccessoryService;
+import com.metoo.nspm.core.service.nspm.IBackupSqlService;
+import com.metoo.nspm.core.utils.Global;
+import com.metoo.nspm.entity.nspm.Accessory;
+import com.metoo.nspm.entity.nspm.BackupSql;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.net.URLDecoder;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,6 +40,12 @@ import java.util.*;
 
 @Component
 public class FileUtil {
+
+
+    @Autowired
+    private IAccessoryService accessoryService;
+    @Autowired
+    private IBackupSqlService backupSqlService;
 
     /**
      * m3u8转mp4
@@ -270,5 +284,137 @@ public class FileUtil {
             return false;
         }
         return true;
+    }
+
+    public boolean uploadFile(MultipartFile file, String fileName,
+                                String ext, String path){
+//        boolean flag = this.createFile(file, fileName, path);
+        boolean flag = false;
+        File fil = new File(path + File.separator + fileName + File.separator + Global.DBNAME  + ext);
+        if (!fil.getParentFile().exists()) {
+            fil.getParentFile().mkdirs();
+        }
+        try {
+            file.transferTo(fil);
+            flag = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            flag = false;
+        }
+        if(flag){
+            String size = null;
+            try {
+                size = this.getSize(path + File.separator + fileName + File.separator + Global.DBNAME  + ext);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            boolean accessory = this.createBackupSql(fileName,size);
+            if(accessory){
+                return true;
+            }else{
+                // 删除文件
+            }
+        }
+        return false;
+    }
+
+    public boolean createFile(MultipartFile file, String fileName, String path){
+        File fil = new File(path + fileName);
+        if (!fil.getParentFile().exists()) {
+            fil.getParentFile().mkdirs();
+        }
+        try {
+            file.transferTo(fil);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean createBackupSql(String fileName, String size){
+        // 创建记录
+        BackupSql backupSql = this.backupSqlService.selectObjByName(fileName);
+        if(backupSql == null){
+            backupSql = new BackupSql();
+        }
+        backupSql.setName(fileName);
+        backupSql.setSize(size);
+        int i = this.backupSqlService.save(backupSql);
+        if(i > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public String getSize(String path){
+        try {
+            Process p = Runtime.getRuntime().exec("du -sh " + path);
+
+            if (p.waitFor() == 0) {// 0 表示线程正常终止
+
+                InputStream is = p.getInputStream();
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+                String line;
+
+                StringBuilder builder = new StringBuilder();
+
+                while((line = reader.readLine())!= null){
+
+                    builder.append(line);
+
+                }
+
+                try {
+                    p.waitFor();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                is.close();
+
+                reader.close();
+
+                p.destroy();
+
+                if (builder.length()==0) {
+                    return "";
+                } else {
+                    String str = builder.substring(0, builder.length() - System.lineSeparator().length());
+                    if(str.indexOf("/") > -1){
+                        return str.substring(0, str.indexOf("/")).trim();
+                    }
+                    return builder.substring(0, builder.length() - System.lineSeparator().length());
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public boolean createAccessory(String fileName, String ext, String path, int fileSize){
+        Accessory accessory = new Accessory();
+        accessory.setAddTime(new Date());
+        accessory.setA_name(fileName);
+        try {
+            accessory.setA_path(URLDecoder.decode(path, "utf-8"));
+            accessory.setA_ext(ext);
+            accessory.setA_size(fileSize);
+            int i = this.accessoryService.save(accessory);
+            if(i > 0){
+                return true;
+            }
+            return false;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
