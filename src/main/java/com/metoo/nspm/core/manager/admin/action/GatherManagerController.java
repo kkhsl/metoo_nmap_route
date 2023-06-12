@@ -1,8 +1,11 @@
 package com.metoo.nspm.core.manager.admin.action;
 
+import com.metoo.nspm.core.manager.admin.tools.GatherContext;
 import com.metoo.nspm.core.service.nspm.IArpHistoryService;
 import com.metoo.nspm.core.service.nspm.ITerminalService;
 import com.metoo.nspm.core.service.zabbix.IGatherService;
+import com.metoo.nspm.core.service.zabbix.impl.GatherMacBatchImpl;
+import com.metoo.nspm.core.service.zabbix.impl.GatherMacImpl;
 import com.metoo.nspm.entity.nspm.Arp;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.time.StopWatch;
@@ -229,6 +232,40 @@ public class GatherManagerController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Autowired
+    private GatherMacImpl gatherMac;
+    @Autowired
+    private GatherMacBatchImpl gatherMacBatch;
+
+    // 策略者模式-mac采集
+    @GetMapping("/strategist/model/gatherMacImpl")
+    public void gatherMacImpl(){
+        GatherContext context = new GatherContext(gatherMac);
+        Calendar cal = Calendar.getInstance();
+        cal.clear(Calendar.SECOND);
+        cal.clear(Calendar.MILLISECOND);
+        Date date = cal.getTime();
+        StopWatch watch = StopWatch.createStarted();
+        context.gatherMac(date);
+        watch.stop();
+        System.out.println("采集总耗时：" + watch.getTime(TimeUnit.SECONDS) + " 秒.");
+    }
+
+
+
+    @GetMapping("/strategist/model/gatherMacBatchImpl")
+    public void gatherMacBatchImpl(){
+        GatherContext context = new GatherContext(gatherMacBatch);
+        Calendar cal = Calendar.getInstance();
+        cal.clear(Calendar.SECOND);
+        cal.clear(Calendar.MILLISECOND);
+        Date date = cal.getTime();
+        StopWatch watch = StopWatch.createStarted();
+        context.gatherMac(date);
+        watch.stop();
+        System.out.println("采集总耗时：" + watch.getTime(TimeUnit.SECONDS) + " 秒.");
     }
 
 

@@ -60,7 +60,7 @@ public class MacManagerController {
                     params.clear();
                     if (mac.getMac() != null && !mac.getMac().equals("")) {
                         String macAddr = mac.getMac();
-                        int index = MyStringUtils.acquireCharacterPosition(macAddr, ":", 3);
+                        int index = MyStringUtils.acquireCharacterPositions(macAddr, ":", 3);
                         if(index != -1){
                             macAddr = macAddr.substring(0, index);
                             params.put("mac", macAddr);

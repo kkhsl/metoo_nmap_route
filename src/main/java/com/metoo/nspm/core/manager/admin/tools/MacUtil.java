@@ -31,7 +31,7 @@ public class MacUtil {
             for (Mac mac : macs) {
                 if (mac.getMac() != null && !mac.getMac().equals("")) {
                     String macAddr = mac.getMac();
-                    int index = MyStringUtils.acquireCharacterPosition(macAddr, ":", 3);
+                    int index = MyStringUtils.acquireCharacterPositions(macAddr, ":", 3);
                     if(index != -1){
                         macAddr = macAddr.substring(0, index);
                         Map params = new HashMap();
@@ -53,7 +53,7 @@ public class MacUtil {
         if(mac != null) {
             if (mac.getMac() != null && !mac.getMac().equals("")) {
                 String macAddr = mac.getMac();
-                int index = MyStringUtils.acquireCharacterPosition(macAddr, ":", 3);
+                int index = MyStringUtils.acquireCharacterPositions(macAddr, ":", 3);
                 if(index != -1){
                     macAddr = macAddr.substring(0, index);
                     Map params = new HashMap();
@@ -74,7 +74,7 @@ public class MacUtil {
             for (Terminal terminal : terminals) {
                 if (terminal.getMac() != null && !terminal.getMac().equals("")) {
                     String macAddr = terminal.getMac();
-                    int index = MyStringUtils.acquireCharacterPosition(macAddr, ":", 3);
+                    int index = MyStringUtils.acquireCharacterPositions(macAddr, ":", 3);
                     if(index != -1){
                         macAddr = macAddr.substring(0, index);
                         Map params = new HashMap();

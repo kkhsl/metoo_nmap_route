@@ -6,7 +6,10 @@ public class DataStructureDemo {
         System.out.println("所有汽车的价格：");
         for (Car c : Car.values())
             System.out.println(c + " 需要 " + c.getPrice() + "||" + c.getPrice1() + " 千美元。");
+
+        System.out.println("--：" + Car.lamborghini);
     }
+
 }
 
 enum Car {

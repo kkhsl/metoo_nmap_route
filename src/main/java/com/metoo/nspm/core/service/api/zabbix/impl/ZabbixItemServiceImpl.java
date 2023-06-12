@@ -957,6 +957,12 @@ public class ZabbixItemServiceImpl implements ZabbixItemService {
             });
         }
         System.out.println("Mac-DT采集耗时：" + watch.getTime(TimeUnit.SECONDS) + " 秒.");
+
+        // RT与进行DT比较，RT中有但是DT中没有的条目改为URT
+        List<MacTemp> ort = this.macTempService.RTToURT();
+        if(ort.size() > 0){
+            this.macTempService.batchUpdate(ort);
+        }
     }
 
     @Override

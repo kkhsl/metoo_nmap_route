@@ -12,6 +12,7 @@ public interface IGatherService {
 
     /**
      * 采集Mac
+     * 遍历网元采集，单条数据（item_tag）插入
      * @param time
      */
     void gatherMacItem(Date time);
@@ -19,12 +20,17 @@ public interface IGatherService {
 
     /**
      *  Stream 批量处理
+     * List集合存储采集数据，使用Mybatis批量插入提高效率（目前数据量为1w左右）
      * @param time
      * @throws InterruptedException
      */
     void gatherMacBatch(Date time) throws InterruptedException;
 
 
+    /**
+     * 使用Stream，优化大数据量下的for循环
+     * @param time
+     */
     void gatherMacBatchStream(Date time);
 
     /**
@@ -32,12 +38,13 @@ public interface IGatherService {
      * @param time
      * @throws InterruptedException
      */
+    // 线程不安全
     void gatherMacThreadPool(Date time);
-
+    // 线程不安全
     void gatherMacThreadPool2(Date time) throws InterruptedException;
-
+    // 线程不安全
     void gatherMacThreadPool3(Date time);
-
+    // 好像安全
     void gatherMacThreadPool4(Date time);
 
     /**

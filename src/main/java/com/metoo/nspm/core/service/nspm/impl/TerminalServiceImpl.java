@@ -135,7 +135,7 @@ public class TerminalServiceImpl implements ITerminalService {
     public void syncMacDtToTerminal() {
         Map params = new HashMap();
         params.clear();
-        params.put("tag", "DT");
+        params.put("tags", Arrays.asList("DT", "URT"));
         List<Mac> macs = this.macService.selectByMap(params);
         if(macs.size() < 0){
             List<Terminal> terminals = this.terminalMapper.selectObjByMap(null);
@@ -223,7 +223,7 @@ public class TerminalServiceImpl implements ITerminalService {
     public void syncHistoryMac(Date time) {
         Map params = new HashMap();
         params.clear();
-        params.put("tag", "DT");
+        params.put("tags", Arrays.asList("DT", "URT"));
         params.put("time", time);
         List<Mac> macs = this.macHistoryService.selectByMap(params);
         if(macs.size() > 0){

@@ -39,7 +39,7 @@ public class ThreadPool {
     // ExecutorService fixedThreadPool = Executors.newCachedThreadPool();//
 
 
-    private static ThreadPool pool = new ThreadPool();// 创建单例
+    private static ThreadPool pool = new ThreadPool();// 创建单例  lan
 
     /**
      * 获取一个单例

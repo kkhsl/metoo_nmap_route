@@ -33,12 +33,6 @@ public class TerminalManagerController {
     @Autowired
     private ITerminalService terminalService;
     @Autowired
-    private RsmsDeviceUtils rsmsDeviceUtils;
-    @Autowired
-    private IDepartmentService departmentService;
-    @Autowired
-    private ITerminalTypeService terminalTypeService;
-    @Autowired
     private GroupTools groupTools;
     @Autowired
     private IGroupService groupService;

@@ -1,4 +1,4 @@
-package com.metoo.nspm.container.data.structure.test;
+package com.metoo.nspm.container.data.structure.enums.test;
 
 import com.metoo.nspm.container.data.structure.IfElseEnumDemo;
 

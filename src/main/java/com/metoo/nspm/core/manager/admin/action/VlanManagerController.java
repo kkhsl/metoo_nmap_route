@@ -244,7 +244,7 @@ public class VlanManagerController {
                                     for (ItemTag tag : tags) {
                                         String value = tag.getValue();
                                         if(tag.getTag().equals("vlan")){
-                                            int i = MyStringUtils.acquireCharacterPosition(value, " ", 1);
+                                            int i = MyStringUtils.acquireCharacterPositions(value, " ", 1);
                                             if(i > 0){
                                                 value = value.substring(i).trim();
                                                 list.add(Integer.parseInt(value));

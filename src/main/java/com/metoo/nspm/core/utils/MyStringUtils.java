@@ -42,7 +42,7 @@ public class MyStringUtils {
 //        while(findMatcher.find()) {
 //            list.add(findMatcher.start());
 //        }
-        int a = acquireCharacterPosition(param, symbol, 3);
+        int a = acquireCharacterPositions(param, symbol, 3);
         System.out.println(a);
 
     }
@@ -91,7 +91,7 @@ public class MyStringUtils {
      * 测试指定字符串出现的位置
      */
     public static void acquireCharacterPosition() {
-        int i = acquireCharacterPosition("00", ":", 1);
+        int i = acquireCharacterPositions("00", ":", 1);
         System.out.println(i);
     }
 
@@ -100,12 +100,12 @@ public class MyStringUtils {
      * 获取指定字符第N次出现的位置(下标)
      * @return
      */
-    public static int acquireCharacterPosition(String param, String symbol, int num){
+    public static int acquireCharacterPositions(String param, String symbol, int num){
         if(Strings.isBlank(param)){
             return -1;
         }
         boolean flag = false;
-        if(symbol.equals("\\.")){
+        if(symbol.equals(".")){
             flag = true;
         }
         if(param.contains(symbol) && param.indexOf(symbol) != -1){

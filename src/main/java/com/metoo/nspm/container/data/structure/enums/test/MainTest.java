@@ -1,4 +1,4 @@
-package com.metoo.nspm.container.data.structure.test;
+package com.metoo.nspm.container.data.structure.enums.test;
 
 import com.metoo.nspm.container.data.structure.IfElseEnumDemo;
 
@@ -14,6 +14,8 @@ public class MainTest {
         String cidr = gf.getFlowers(IfElseEnumDemo.valueOf("ROSE"), "192.168.5.1", 24);
         System.out.println(cidr);
     }
+
+
 
     /**
      *

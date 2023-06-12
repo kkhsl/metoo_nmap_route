@@ -334,10 +334,11 @@ public class FileUtil {
 
     public boolean createBackupSql(String fileName, String size){
         // 创建记录
-        BackupSql backupSql = this.backupSqlService.selectObjByName(fileName);
-        if(backupSql == null){
-            backupSql = new BackupSql();
-        }
+//        BackupSql backupSql = this.backupSqlService.selectObjByName(fileName);
+//        if(backupSql == null){
+//            backupSql = new BackupSql();
+//        }
+        BackupSql backupSql = new BackupSql();
         backupSql.setName(fileName);
         backupSql.setSize(size);
         int i = this.backupSqlService.save(backupSql);

@@ -649,7 +649,7 @@ public class TopologyManagerController {
         try {
             if(Strings.isNotBlank(fileName) && fileName.contains("/images/")){
                 // 截取文件名
-                int n1 = MyStringUtils.acquireCharacterPosition(fileName, "/", 2);
+                int n1 = MyStringUtils.acquireCharacterPositions(fileName, "/", 2);
                 int n2 = fileName.indexOf(".");
                 String name = fileName.substring(n1 + 1, n2);
 

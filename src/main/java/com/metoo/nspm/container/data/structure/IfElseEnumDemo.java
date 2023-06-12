@@ -8,7 +8,7 @@ public enum IfElseEnumDemo {
     ROSE{
         @Override
         public String getFlowers(String ip, Integer mask) {
-            int index = MyStringUtils.acquireCharacterPosition(ip, "\\\\.", 3);
+            int index = MyStringUtils.acquireCharacterPositions(ip, ".", 3);
             String parentIp = ip.substring(0, index);
             String segment = ".0";
             StringBuilder sb = new StringBuilder();

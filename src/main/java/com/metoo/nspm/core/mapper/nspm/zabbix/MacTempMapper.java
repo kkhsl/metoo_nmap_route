@@ -36,6 +36,7 @@ public interface MacTempMapper {
 
     int batchUpdate(List<MacTemp> macTemps);
 
-
     void truncateTable();
+
+    List<MacTemp> RTToURT();
 }

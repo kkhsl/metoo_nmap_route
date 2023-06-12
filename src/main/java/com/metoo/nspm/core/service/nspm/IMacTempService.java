@@ -34,4 +34,7 @@ public interface IMacTempService {
     int batchUpdate(List<MacTemp> macTemps);
 
     void truncateTable();
+
+    // RtToURT
+    List<MacTemp> RTToURT();
 }

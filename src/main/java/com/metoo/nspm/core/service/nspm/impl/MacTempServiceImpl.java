@@ -98,4 +98,9 @@ public class MacTempServiceImpl implements IMacTempService {
     public void truncateTable() {
         this.macTempMapper.truncateTable();
     }
+
+    @Override
+    public List<MacTemp> RTToURT() {
+        return this.macTempMapper.RTToURT();
+    }
 }
