@@ -143,6 +143,15 @@
             <if test="interfaceName != null and interfaceName != ''">
                 AND interface_name = #{interfaceName}
             </if>
+            <if test="other != null">
+                AND tag != #{other}
+            </if>
+            <if test="tags != null">
+              AND tag in
+            <foreach collection="tags" index = "index" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
             <if test="online != null and online != ''">
                 AND online = #{online}
             </if>

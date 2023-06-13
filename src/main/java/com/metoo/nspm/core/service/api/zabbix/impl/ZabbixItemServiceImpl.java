@@ -929,9 +929,16 @@ public class ZabbixItemServiceImpl implements ZabbixItemService {
         }
         watch.stop();
 
-        // 查所有RT，根据RT关联的端口查DE条目，对端设备为HUB的，手工增加mac条目
+
+        // RT与进行DT比较，RT中有但是DT中没有的条目改为URT
+        List<MacTemp> ort = this.macTempService.RTToURT();
+        if(ort.size() > 0){
+            this.macTempService.batchUpdate(ort);
+        }
+
+        // 查所有URT，根据RT关联的端口查DE条目，对端设备为HUB的，手工增加mac条目
         params.clear();
-        params.put("tag", "RT");
+        params.put("tag", "URT");
         List<MacTemp> rts = this.macTempService.selectByMap(params);
         if(rts.size() > 0){
             rts.stream().forEach(e ->{
@@ -947,10 +954,10 @@ public class ZabbixItemServiceImpl implements ZabbixItemService {
                         instance.setAddTime(time);
                         instance.setDeviceName(macTemp.getRemoteDevice());
                         instance.setUuid(macTemp.getRemoteUuid());
-                        instance.setInterfaceName("PortN");
+//                        instance.setInterfaceName("PortN");
                         instance.setMac(e.getMac());
                         instance.setIp(e.getIp());
-                        instance.setTag("DT");
+                        instance.setTag("UDT");
                         this.macTempService.save(instance);
                     }
                 }
@@ -958,11 +965,6 @@ public class ZabbixItemServiceImpl implements ZabbixItemService {
         }
         System.out.println("Mac-DT采集耗时：" + watch.getTime(TimeUnit.SECONDS) + " 秒.");
 
-        // RT与进行DT比较，RT中有但是DT中没有的条目改为URT
-        List<MacTemp> ort = this.macTempService.RTToURT();
-        if(ort.size() > 0){
-            this.macTempService.batchUpdate(ort);
-        }
     }
 
     @Override
@@ -976,7 +978,7 @@ public class ZabbixItemServiceImpl implements ZabbixItemService {
             this.macTempService.update(item);
         });
         params.clear();
-        params.put("s", 2);
+        params.put("S", 2);
         List<MacTemp> smac = this.macTempService.getMacUS(params);
         smac.forEach(item ->{
             item.setTag("S");

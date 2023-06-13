@@ -526,6 +526,7 @@
         TRUNCATE TABLE rsms_mac_temp
     </update>
 
+
     <select id="RTToURT" resultMap="Base_Result_Map">
        SELECT
             mac_rt.id,
@@ -535,7 +536,7 @@
                 SELECT
                     *
                 FROM
-                    rsms_mac
+                    rsms_mac_temp
                 WHERE
                     tag = 'RT'
             ) mac_rt
@@ -543,13 +544,12 @@
             SELECT
                 *
             FROM
-                rsms_mac
+                rsms_mac_temp
             WHERE
                 tag = 'DT'
         ) mac_dt ON mac_rt.mac = mac_dt.mac
         WHERE
             mac_dt.id IS NULL;
     </select>
-
 
 </mapper>

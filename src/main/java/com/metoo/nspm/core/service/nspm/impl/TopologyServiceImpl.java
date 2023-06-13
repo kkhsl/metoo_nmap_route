@@ -8,13 +8,8 @@ import com.metoo.nspm.core.manager.admin.tools.ShiroUserHolder;
 import com.metoo.nspm.core.mapper.nspm.TopologyHistoryMapper;
 import com.metoo.nspm.core.mapper.nspm.TopologyMapper;
 import com.metoo.nspm.core.mapper.zabbix.ItemMapper;
-import com.metoo.nspm.core.service.api.zabbix.ZabbixHostInterfaceService;
-import com.metoo.nspm.core.service.nspm.IDeviceTypeService;
-import com.metoo.nspm.core.service.nspm.ILinkService;
-import com.metoo.nspm.core.service.nspm.INetworkElementService;
-import com.metoo.nspm.core.service.nspm.ITopologyService;
+import com.metoo.nspm.core.service.nspm.*;
 import com.metoo.nspm.core.service.zabbix.InterfaceService;
-import com.metoo.nspm.core.utils.ResponseUtil;
 import com.metoo.nspm.core.utils.collections.ListSortUtil;
 import com.metoo.nspm.core.utils.network.IpUtil;
 import com.metoo.nspm.dto.TopologyDTO;
@@ -22,16 +17,17 @@ import com.metoo.nspm.entity.nspm.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.metoo.nspm.entity.zabbix.Interface;
-import com.metoo.nspm.entity.zabbix.InterfaceTag;
 import com.metoo.nspm.entity.zabbix.Item;
 import com.metoo.nspm.entity.zabbix.ItemTag;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-
+import java.util.stream.Collectors;
+@Lazy
 @Service
 @Transactional
 public class TopologyServiceImpl implements ITopologyService {
@@ -42,6 +38,16 @@ public class TopologyServiceImpl implements ITopologyService {
     private TopologyHistoryMapper topologyHistoryMapper;
     @Autowired
     private ILinkService linkService;
+    @Autowired
+    private IDeviceTypeService deviceTypeService;
+    @Autowired
+    private INetworkElementService networkElementService;
+    @Autowired
+    private ItemMapper itemMapper;
+    @Autowired
+    private InterfaceService interfaceService;
+//    @Autowired
+//    private ITerminalService terminalService;
 
     @Override
     public Topology selectObjById(Long id) {
@@ -244,15 +250,6 @@ public class TopologyServiceImpl implements ITopologyService {
     }
 
 
-    @Autowired
-    private IDeviceTypeService deviceTypeService;
-    @Autowired
-    private INetworkElementService networkElementService;
-    @Autowired
-    private ItemMapper itemMapper;
-    @Autowired
-    private InterfaceService interfaceService;
-
     @Override
     public List<Map<String, Object>> getDevicePortsByUuid(String uuid) {
         Map params = new HashMap();
@@ -286,12 +283,6 @@ public class TopologyServiceImpl implements ITopologyService {
                 if(anInterface != null){
 //                    String vendor = "";
                     if(anInterface.getItemTags().size() > 0) {
-//                        for (InterfaceTag itemTag : anInterface.getItemTags()) {
-//                            if (itemTag.getTag().equals("vender")) {
-//                                vendor = itemTag.getValue();
-//                                break;
-//                            }
-//                        }
                         if (true) {// vendor.equals("H3C")
                             // 获取默认vlan、端口类型
                             params.clear();
@@ -419,13 +410,6 @@ public class TopologyServiceImpl implements ITopologyService {
                 }
             }
         }else{
-//            Map map = new HashMap();
-//            map.put("name", name);
-//            map.put("status", "up");
-//            map.put("ip", ip);
-//            map.put("portIndex", portIndex);
-//            map.put("type", type);
-            List portList = new ArrayList();
             if(type == 12 && portIndex > 0){
                 for (int i = 0; i < portIndex; i++) {
                     Map portMap = new HashMap();
@@ -440,5 +424,196 @@ public class TopologyServiceImpl implements ITopologyService {
             ListSortUtil.sortStr(list);
         }
         return list;
+    }
+
+    @Override
+    public List<Map<String, Object>> getTerminalPortsByUuid(String uuid) {
+//        Map params = new HashMap();
+//        params.put("uuid", uuid);
+//        List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
+//        String name = "";
+//        String ip = "";
+//        Integer type = -1;
+//        int portIndex = 0;
+//        if(networkElements.size() > 0){
+//            NetworkElement networkElement = networkElements.get(0);
+//            DeviceType deviceType = this.deviceTypeService.selectObjById(networkElement.getDeviceTypeId());
+//            if(deviceType != null){
+//                type = deviceType.getType();
+//            }
+//            ip = networkElement.getIp();
+//            name = networkElement.getInterfaceName();
+//            if(type == 12){
+//                portIndex = networkElement.getPortIndex() != null ? networkElement.getPortIndex() : 0;
+//            }
+//        }
+//        List<Map<String, Object>> list = new ArrayList();
+//        if(type != 10 && type != 12 && type != -1){
+//            params.put("ip", ip);
+//            params.put("index", "ifindex");
+//            List<com.metoo.nspm.entity.zabbix.Item> itemTagList = this.itemMapper.interfaceTable(params);
+//            if(itemTagList.size() > 0){
+//                // 校验主机vendor
+//                List<Map<String, String>> h3cList = new ArrayList();
+//                Interface anInterface = this.interfaceService.selectInfAndTag(ip);
+//                if(anInterface != null){
+////                    String vendor = "";
+//                    if(anInterface.getItemTags().size() > 0) {
+//                        if (true) {// vendor.equals("H3C")
+//                            // 获取默认vlan、端口类型
+//                            params.clear();
+//                            params.put("ip", ip);
+//                            params.put("tag", "ifvlan");
+//                            List<com.metoo.nspm.entity.zabbix.Item> h3cObj = this.itemMapper.selectItemTagByIpAndObjToPort(params);
+//                            if(h3cObj.size() > 0){
+//                                for (com.metoo.nspm.entity.zabbix.Item item : h3cObj) {
+//                                    Map<String, String> h3cMap = new HashMap();
+//                                    List<ItemTag> tags = item.getItemTags();
+//                                    for (ItemTag tag : tags) {
+//                                        if (tag.getTag().equals("ifname")) {
+//                                            h3cMap.put("ifname", tag.getValue());
+//                                        }
+//                                        if (tag.getTag().equals("iftype")) {
+//                                            String vlandefault = "unknown";
+//                                            if(Strings.isNotBlank(tag.getValue())){
+//                                                switch (tag.getValue()){
+//                                                    case "1":
+//                                                        vlandefault = "trunk";
+//                                                        break;
+//                                                    case "2":
+//                                                        vlandefault = "access";
+//                                                        break;
+//                                                    default:
+//                                                        vlandefault = "unknown";
+//                                                        break;
+//                                                }
+//                                            }
+//                                            h3cMap.put("iftype", vlandefault);
+//                                        }
+//                                        if (tag.getTag().equals("defaultvlan")) {
+//                                            h3cMap.put("defaultvlan", tag.getValue());
+//                                        }
+//                                        if (tag.getTag().equals("index")) {
+//                                            h3cMap.put("name", tag.getName());
+//                                        }
+//                                    }
+//                                    h3cList.add(h3cMap);
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                for (Item item : itemTagList) {
+//                    List<ItemTag> tags = item.getItemTags();
+//                    Map map = new HashMap();
+//                    map.put("description", "");
+//                    map.put("name", "");
+//                    map.put("ip", "");
+//                    map.put("mask", "");
+//                    map.put("status", "");
+//
+//                    map.put("iftype", "");
+//                    map.put("defaultvlan", "");
+//                    for (ItemTag tag : tags) {
+//                        if (tag.getTag().equals("description")) {
+//                            map.put("description", StringUtil.isEmpty(tag.getValue()) ? "" : tag.getValue());
+//                        }
+//                        if (tag.getTag().equals("ifname")) {
+//                            map.put("name", StringUtil.isEmpty(tag.getValue()) ? "" : tag.getValue());
+//                            if(h3cList.size() > 0){
+//                                for (Map<String, String> o : h3cList) {
+//                                    boolean flag = false;
+//                                    for(Map.Entry<String, String> h3cifvlan : o.entrySet()){
+//                                        if(h3cifvlan.getKey().equals("name")){
+//                                            if(h3cifvlan.getValue() != null && h3cifvlan.getValue().equals(tag.getValue())){
+//                                                flag = true;
+//                                            }
+//                                        }
+//                                    }
+//                                    if(flag){
+//                                        for(Map.Entry<String, String> h3cifvlan : o.entrySet()){
+//                                            map.put(h3cifvlan.getKey(), h3cifvlan.getValue());
+//                                        }
+//                                        break;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        if (tag.getTag().equals("ifup")) {
+//                            String status = "";
+//                            switch (tag.getValue()) {
+//                                case "1":
+//                                    status = "up";
+//                                    break;
+//                                case "2":
+//                                    status = "down";
+//                                    break;
+//                                default:
+//                                    status = "unknown";
+//                            }
+//                            map.put("status", status);
+//                        }
+//                        if (tag.getTag().equals("ifindex")) {
+//                            map.put("index", tag.getValue());
+//                            StringBuffer ip_mask = new StringBuffer();
+//                            if(tag.getIp() != null && !tag.getIp().equals("")){
+//                                String[] ips = tag.getIp().split("/");
+//                                String[] masks = tag.getMask().split("/");
+//                                if(ips.length == 0){
+//                                    map.put("ip", "");
+//                                }
+//                                if(ips.length == 1){
+//                                    ip_mask.append(tag.getIp());
+//                                    if(tag.getMask() != null && !tag.getMask().equals("")){
+//                                        ip_mask.append("/").append(IpUtil.getBitMask(tag.getMask()));
+//                                    }
+//                                    map.put("ip", ip_mask);
+//                                }
+//                                if(ips.length > 1 && masks.length > 1){
+//                                    for(int i = 0; i < ips.length; i ++){
+//                                        ip_mask.append(ips[i]).append("/").append(IpUtil.getBitMask(masks[i]));
+//                                        if(i + 1 < ips.length){
+//                                            ip_mask .append("\n");
+//                                        }
+//                                    }
+//                                    map.put("ip", ip_mask);
+//                                }
+//                            }
+//                        }
+//                    }
+//                    list.add(map);
+//                }
+//            }
+//        }else{
+//            if(type == 12 && portIndex > 0){
+//                for (int i = 0; i < portIndex; i++) {
+//                    Map portMap = new HashMap();
+//                    portMap.put("ip", ip);
+//                    portMap.put("name", name + i);
+//                    portMap.put("status", "up");
+//                    list.add(portMap);
+//                }
+//            }
+//        }
+//
+//        List list1 = new ArrayList();
+//        // 查询设备终端
+//        params.clear();
+//        params.put("uuid", uuid);
+//        List<Terminal> terminals = this.terminalService.selectObjByMap(params);
+//        if(terminals.size() > 0){
+//            List<String> interfaces = terminals.stream().map(e -> e.getInterfaceName()).collect(Collectors.toList());
+//            list1 = list.stream().filter(item -> !interfaces.contains(item.get("name"))).collect(Collectors.toList());
+//        }
+//        if(list1.size() > 0){
+//            ListSortUtil.sortStr(list1);
+//            return list;
+//        }
+//        if(list != null && list.size() > 0){
+//            ListSortUtil.sortStr(list);
+//        }
+//        return list;
+        return null;
     }
 }

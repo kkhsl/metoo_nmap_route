@@ -17,10 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequestMapping("/websocket/api/zabbix")
 @RestController
@@ -70,7 +67,8 @@ public class TopologyManagerApi {
                     args.put("uuid", uuid);
                     args.put("online", 1);
                     args.put("interfaceStatus", 1);
-                    args.put("tag", "DT");
+//                    args.put("tag", "DT");
+                    args.put("tags", Arrays.asList("DT", "URT", "UDT"));
                     List<Terminal> terminals = this.terminalService.selectObjByMap(args);
                     terminals.stream().forEach(item -> {
                         String terminalIp = item.getIp();
@@ -106,7 +104,7 @@ public class TopologyManagerApi {
                 for (String item : list) {
                     args.clear();
                     args.put("uuid", item);
-                    args.put("tag", "DT");
+                    args.put("tags", Arrays.asList("DT", "URT", "UDT"));
                     args.put("time", params.get("time"));
                     args.put("online", true);
                     args.put("interfaceStatus", 1);

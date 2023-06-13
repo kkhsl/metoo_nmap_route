@@ -12,6 +12,7 @@ import com.metoo.nspm.entity.nspm.*;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -135,7 +136,7 @@ public class TerminalServiceImpl implements ITerminalService {
     public void syncMacDtToTerminal() {
         Map params = new HashMap();
         params.clear();
-        params.put("tags", Arrays.asList("DT", "URT"));
+        params.put("tags", Arrays.asList("DT", "URT", "UDT"));
         List<Mac> macs = this.macService.selectByMap(params);
         if(macs.size() < 0){
             List<Terminal> terminals = this.terminalMapper.selectObjByMap(null);
@@ -170,15 +171,16 @@ public class TerminalServiceImpl implements ITerminalService {
                             t.setOnline(true);
                         }
                         if(t.getInterfaceStatus() != ifup
-                                && !t.getInterfaceName().equals("PortN")){
+                                && !t.getInterfaceName().equals("PortN")
+                                && !t.getInterfaceName().equals("")){
                             t.setInterfaceStatus(ifup);
                         }
                         if(!t.getUuid().equals(e.getUuid())
-                                ||
-                        t.getInterfaceName() == null  || !t.getInterfaceName().equals(e.getInterfaceName())
-                            ||
-                        t.getIp() == null || !t.getIp().equals(e.getIp())){
-                            String[] IGNORE_ISOLATOR_PROPERTIES = new String[]{"id"};
+                                ||  t.getInterfaceName() == null
+                                || !t.getInterfaceName().equals(e.getInterfaceName())
+                                || t.getIp() == null
+                                || !t.getIp().equals(e.getIp())){
+                            String[] IGNORE_ISOLATOR_PROPERTIES = new String[]{"id", "online", "interfaceStatus"};
                             BeanUtils.copyProperties(e, t, IGNORE_ISOLATOR_PROPERTIES);
                         }
                         this.terminalMapper.update(t);
@@ -192,7 +194,7 @@ public class TerminalServiceImpl implements ITerminalService {
                     if(deviceType != null){
                         terminal.setDeviceTypeId(deviceType.getId());
                     }
-                    if(e.getInterfaceName().equals("PortN")){
+                    if(e.getInterfaceName().equals("PortN") || !e.getInterfaceName().equals("")){
                         terminal.setInterfaceStatus(1);
                     }else{
                         terminal.setInterfaceStatus(ifup);
@@ -223,7 +225,7 @@ public class TerminalServiceImpl implements ITerminalService {
     public void syncHistoryMac(Date time) {
         Map params = new HashMap();
         params.clear();
-        params.put("tags", Arrays.asList("DT", "URT"));
+        params.put("tags", Arrays.asList("DT", "URT", "UDT"));
         params.put("time", time);
         List<Mac> macs = this.macHistoryService.selectByMap(params);
         if(macs.size() > 0){

@@ -28,4 +28,7 @@ public interface ITopologyService {
     Long copy(Topology instance);
 
     List<Map<String, Object>> getDevicePortsByUuid(String uuid);
+
+    List<Map<String, Object>> getTerminalPortsByUuid(String uuid);
+
 }

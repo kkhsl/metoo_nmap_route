@@ -6,6 +6,7 @@ import com.metoo.nspm.core.service.nspm.impl.TerminalServiceImpl;
 import com.metoo.nspm.core.utils.MyStringUtils;
 import com.metoo.nspm.entity.nspm.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -16,13 +17,10 @@ import java.util.Map;
 @Component
 public class MacUtil {
 
-
     @Autowired
     private IMacVendorService macVendorService;
-    @Autowired
-    private ITerminalService terminalService;
-    @Autowired
-    private ITerminalHistoryService terminalHistoryService;
+//    @Autowired
+//    private ITerminalService terminalService;
     @Autowired
     private IDeviceTypeService deviceTypeService;
 
@@ -92,30 +90,30 @@ public class MacUtil {
         return terminals;
     }
 
-    public void writerType(List<Mac> macs){
-        if(macs.size() > 0){
-            Map params = new HashMap();
-            macs.stream().forEach(e -> {
-                params.clear();
-                params.put("mac", e.getMac());
-                List<Terminal> terminals = this.terminalService.selectObjByMap(params);
-                if(terminals.size() > 0){
-                    Terminal terminal = terminals.get(0);
-                    if(terminal.getOnline()){
-                        e.setOnline(true);
-                    }
-//                    if(terminal.getTerminalTypeId() != null){
-//                        TerminalType terminalType = this.terminalTypeService.selectObjById(terminal.getTerminalTypeId());
-//                        e.setTerminalTypeName(terminalType.getName());
+//    public void writerType(List<Mac> macs){
+//        if(macs.size() > 0){
+//            Map params = new HashMap();
+//            macs.stream().forEach(e -> {
+//                params.clear();
+//                params.put("mac", e.getMac());
+//                List<Terminal> terminals = this.terminalService.selectObjByMap(params);
+//                if(terminals.size() > 0){
+//                    Terminal terminal = terminals.get(0);
+//                    if(terminal.getOnline()){
+//                        e.setOnline(true);
 //                    }
-                    if(terminal.getDeviceTypeId() != null){
-                        DeviceType deviceType = this.deviceTypeService.selectObjById(terminal.getDeviceTypeId());
-                        e.setDeviceTypeName(deviceType.getName());
-                    }
-                }
-            });
-        }
-    }
+////                    if(terminal.getTerminalTypeId() != null){
+////                        TerminalType terminalType = this.terminalTypeService.selectObjById(terminal.getTerminalTypeId());
+////                        e.setTerminalTypeName(terminalType.getName());
+////                    }
+//                    if(terminal.getDeviceTypeId() != null){
+//                        DeviceType deviceType = this.deviceTypeService.selectObjById(terminal.getDeviceTypeId());
+//                        e.setDeviceTypeName(deviceType.getName());
+//                    }
+//                }
+//            });
+//        }
+//    }
 
     public static void main(String[] args) {
         String macAddr = "50:0:0:26:0:2";
