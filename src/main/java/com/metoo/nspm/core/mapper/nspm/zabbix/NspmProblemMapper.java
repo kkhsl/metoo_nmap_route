@@ -10,10 +10,13 @@ import java.util.Map;
 @Mapper
 public interface NspmProblemMapper {
 
+    Problem selectObjById(Long id);
 
     List<Problem> selectObjConditionQuery(NspmProblemDTO dto);
 
     List<Problem> selectObjByMap(Map params);
+
+    int update(Problem instance);
 
     void truncateTable();
 

@@ -113,7 +113,7 @@ public class Terminal extends IdEntity {
     @ApiModelProperty(value = "变更原因")
     private String changeReasons;
 
-    @ApiModelProperty("来源 0：采集 1：手动录入")
+    @ApiModelProperty("来源 0：采集 1：手动录入 2:  3:HUB-terminal（已手动修改终端，采集不在更新设备）")
     private Integer from;
 
     @ApiModelProperty("项目Id")

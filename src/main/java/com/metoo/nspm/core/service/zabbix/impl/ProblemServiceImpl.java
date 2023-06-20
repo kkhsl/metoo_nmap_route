@@ -24,6 +24,11 @@ public class ProblemServiceImpl implements IProblemService {
     private NspmProblemMapper nspmProoblemMapper;
 
     @Override
+    public Problem selectObjById(Long id) {
+        return this.nspmProoblemMapper.selectObjById(id);
+    }
+
+    @Override
     public Page<Problem> selectConditionQuery(NspmProblemDTO dto) {
         if(dto == null){
             dto = new NspmProblemDTO();
@@ -36,6 +41,16 @@ public class ProblemServiceImpl implements IProblemService {
     @Override
     public List<Problem> selectObjByMap(Map params) {
         return this.nspmProoblemMapper.selectObjByMap(params);
+    }
+
+    @Override
+    public int update(Problem instance) {
+        try {
+            return this.nspmProoblemMapper.update(instance);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     @Override

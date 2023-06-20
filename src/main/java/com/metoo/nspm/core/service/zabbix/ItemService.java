@@ -68,4 +68,14 @@ public interface ItemService {
     Integer selectInterfaceStatus(Map params);
 
     void gatherSnmp(Date time);
+
+    // 获取卡板信息
+    List gatherSlotNumber(String ip);
+
+    // 获取电源信息
+    List gatherPower(String ip);
+
+    //  获取风扇信息
+    List gatherFan(String ip);
+
 }

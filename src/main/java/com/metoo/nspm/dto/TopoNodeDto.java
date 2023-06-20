@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel("节点配置")
-public class TopoNodeDto<T> extends PageDto<TopoNode> {
+public class TopoNodeDto extends PageDto<TopoNode> {
 
     @ApiModelProperty("页数")
     private Integer start;

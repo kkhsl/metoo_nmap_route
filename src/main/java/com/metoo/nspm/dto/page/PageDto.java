@@ -39,6 +39,7 @@ public class PageDto<T> {
 
     private String orderType = "DESC";
 
+//    private Integer limit = 100;// SqlMaxLimit 100
 
     public PageDto(Integer currentPage, Integer pageSize) {
        this.currentPage = currentPage;

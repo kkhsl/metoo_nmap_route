@@ -26,7 +26,8 @@ public class Problem  extends IdEntity {
     private String severity; //问题当前严重性。 可用值： 0 - 未分类； 1 - 信息； 2 - 警告； 3 - 平均； 4 - 高； 5 - 灾难。
     private String event;
     private Integer suppressed;// 问题是否被抑制 0：问题处于正常状态 1：问题被抑制
-    private Integer status;
+    private Integer status;// 0：为解决 1：已解决
+    private Integer affirm;// 0：未确认 1：已确认
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date restoreTime;
 

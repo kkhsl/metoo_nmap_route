@@ -91,15 +91,18 @@ public class ListSortUtil {
     public static void main(String[] args) {
 
         List<String> list = new ArrayList();
-        list.add("G-E100");
-        list.add("GE103");
-        list.add("GE101");
-        list.add("GES1012");
-        list.add("GsES101");
-        list.add("G00");
-        list.add("GE000");
-        list.add("GE1021");
-        list.add("GE102");
+        list.add("Port1");
+        list.add("Port3");
+        list.add("Port2");
+//        list.add("G-E100");
+//        list.add("GE103");
+//        list.add("GE101");
+//        list.add("GES1012");
+//        list.add("GsES101");
+//        list.add("G00");
+//        list.add("GE000");
+//        list.add("GE1021");
+//        list.add("GE102");
         ListSortUtil.sortStr1(list);
         System.out.println(list);
     }

@@ -124,9 +124,9 @@
 
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
-        SELECT
-          <include refid="Ntoa_Column_List"/>
-        FROM rsms_terminal
+            SELECT
+              <include refid="Ntoa_Column_List"/>
+            FROM rsms_terminal
         <where>
             <if test="name != null and name !=''">
                 AND  `name` = #{name}
@@ -147,11 +147,11 @@
                 AND tag != #{other}
             </if>
             <if test="tags != null">
-              AND tag in
-            <foreach collection="tags" index = "index" item="item" separator="," open="(" close=")">
-                #{item}
-            </foreach>
-        </if>
+                  AND tag in
+                <foreach collection="tags" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+           </if>
             <if test="online != null and online != ''">
                 AND online = #{online}
             </if>
@@ -529,6 +529,9 @@
             </if>
             <if test="model != null and model != ''">
                 model = #{model},
+            </if>
+            <if test="from != null and from != ''">
+                `from` = #{from},
             </if>
         </set>
         WHERE id = #{id}

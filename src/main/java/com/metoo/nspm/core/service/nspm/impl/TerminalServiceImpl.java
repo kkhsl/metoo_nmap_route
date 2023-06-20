@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+//@Transactional
 public class TerminalServiceImpl implements ITerminalService {
 
     @Autowired
@@ -62,7 +62,9 @@ public class TerminalServiceImpl implements ITerminalService {
             instance.setTag("DT");
             instance.setUuid(UUID.randomUUID().toString());
         }else{
-            instance.setFrom(1);
+            if(instance.getFrom() != null && Strings.isBlank(instance.getFrom().toString())){
+                instance.setFrom(1);
+            }
         }
         if(instance.getId() == null || instance.getId().equals("")){
             try {
@@ -136,14 +138,14 @@ public class TerminalServiceImpl implements ITerminalService {
     public void syncMacDtToTerminal() {
         Map params = new HashMap();
         params.clear();
-        params.put("tags", Arrays.asList("DT", "URT", "UDT"));
+        params.put("tags", Arrays.asList("DT", "UDT"));
         List<Mac> macs = this.macService.selectByMap(params);
         if(macs.size() < 0){
             List<Terminal> terminals = this.terminalMapper.selectObjByMap(null);
             terminals = terminals.stream().map(e -> {
                         if(e.getOnline()){
                             e.setOnline(false);
-                            if(e.getInterfaceName().equals("PortN")){
+                            if(e.getInterfaceName().equals("PortN") || e.getInterfaceName().contains("Port")){
                                 e.setInterfaceStatus(1);
                             }
                             return e;
@@ -171,18 +173,24 @@ public class TerminalServiceImpl implements ITerminalService {
                             t.setOnline(true);
                         }
                         if(t.getInterfaceStatus() != ifup
+                                && t.getInterfaceName() != null
                                 && !t.getInterfaceName().equals("PortN")
-                                && !t.getInterfaceName().equals("")){
+                                && !t.getInterfaceName().contains("Port")){
                             t.setInterfaceStatus(ifup);
                         }
-                        if(!t.getUuid().equals(e.getUuid())
-                                ||  t.getInterfaceName() == null
-                                || !t.getInterfaceName().equals(e.getInterfaceName())
-                                || t.getIp() == null
-                                || !t.getIp().equals(e.getIp())){
-                            String[] IGNORE_ISOLATOR_PROPERTIES = new String[]{"id", "online", "interfaceStatus"};
-                            BeanUtils.copyProperties(e, t, IGNORE_ISOLATOR_PROPERTIES);
+                        String[] IGNORE_ISOLATOR_PROPERTIES = new String[]{};
+                        if(t.getFrom() == 3){
+                            IGNORE_ISOLATOR_PROPERTIES = new String[]{
+                                    "id",
+                                    "online",
+                                    "interfaceStatus",
+                                    "deviceName",
+                                    "interfaceName",
+                                    "uuid"};
+                        }else{
+                            IGNORE_ISOLATOR_PROPERTIES = new String[]{"id", "online", "interfaceStatus", "from"};
                         }
+                        BeanUtils.copyProperties(e, t, IGNORE_ISOLATOR_PROPERTIES);
                         this.terminalMapper.update(t);
                         ids.add(t.getId());
                     });
@@ -194,8 +202,9 @@ public class TerminalServiceImpl implements ITerminalService {
                     if(deviceType != null){
                         terminal.setDeviceTypeId(deviceType.getId());
                     }
-                    if(e.getInterfaceName().equals("PortN") || !e.getInterfaceName().equals("")){
+                    if(e.getInterfaceName() == null || e.getInterfaceName().equals("PortN") || e.getInterfaceName().contains("Port")){
                         terminal.setInterfaceStatus(1);
+                        terminal.setFrom(3);
                     }else{
                         terminal.setInterfaceStatus(ifup);
                     }
@@ -225,7 +234,7 @@ public class TerminalServiceImpl implements ITerminalService {
     public void syncHistoryMac(Date time) {
         Map params = new HashMap();
         params.clear();
-        params.put("tags", Arrays.asList("DT", "URT", "UDT"));
+        params.put("tags", Arrays.asList("DT", "UDT"));
         params.put("time", time);
         List<Mac> macs = this.macHistoryService.selectByMap(params);
         if(macs.size() > 0){

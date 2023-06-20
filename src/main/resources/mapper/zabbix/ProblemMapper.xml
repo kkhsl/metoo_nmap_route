@@ -2,6 +2,23 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.metoo.nspm.core.mapper.zabbix.ProblemMapper">
 
+    <resultMap id="Base_Result_Map" type="com.metoo.nspm.entity.zabbix.Problem">
+        <id column="id" property="id"></id>
+        <result column="objectid" property="objectid"></result>
+        <result column="hostids" property="hostids"></result>
+        <result column="clock" property="clock"></result>
+        <result column="uuid" property="uuid"></result>
+        <result column="name" property="name"></result>
+        <result column="interface_name" property="interfaceName"></result>
+        <result column="device_name" property="deviceName"></result>
+        <result column="ip" property="ip"></result>
+        <result column="severity" property="severity"></result>
+        <result column="event" property="event"></result>
+        <result column="suppressed" property="suppressed"></result>
+        <result column="status" property="status"></result>
+        <result column="restoreTime" property="restoreTime"></result>
+    </resultMap>
+
     <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nspm.entity.zabbix.Problem">
         SELECT
           *
@@ -31,5 +48,9 @@
             </if>
         </where>
     </select>
+
+
+
+
 
 </mapper>

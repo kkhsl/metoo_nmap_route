@@ -307,7 +307,7 @@ public class NetWorkManagerApi {
                                     args.put("uuid", uuid);
                                     args.put("interfaceName", inf);
 //                                    args.put("tag", "DT");
-                                    args.put("tags", Arrays.asList("DT", "URT", "UDT"));
+                                    args.put("tags", Arrays.asList("DT",  "UDT"));
                                     args.put("orderBy", "ip");
                                     args.put("orderType", "ASC");
                                     List<Mac> macs = null;
@@ -400,7 +400,7 @@ public class NetWorkManagerApi {
                             params.put("mac", e);
                             params.put("time", param.get("time"));
 //                            params.put("tag", "DT");
-                            params.put("tags", Arrays.asList("DT", "URT", "UDT"));
+                            params.put("tags", Arrays.asList("DT",  "UDT"));
                             List<Mac> macs = this.macHistoryService.selectObjByMap(params);
                             if(macs.size() > 0){
                                 macUtil.macVendor(macs.get(0));

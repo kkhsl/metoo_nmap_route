@@ -16,11 +16,20 @@
         <result column="event" property="event"></result>
         <result column="status" property="status"></result>
         <result column="restoreTime" property="restoreTime"></result>
+        <result column="affirm" property="affirm"></result>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, addTime, deleteStatus, name, device_name, uuid, clock, ip, severity, event, status, restoreTime
+        id, addTime, deleteStatus, name, device_name, uuid, clock, ip, severity, event, status, restoreTime, affirm
     </sql>
+
+    <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
+        SELECT
+          *
+        FROM
+        rsms_problem
+        where id = #{id}
+    </select>
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
         SELECT <include refid="Base_Column_List"/>
@@ -43,7 +52,6 @@
         <if test="limit != null">
             limit  ${limit}
         </if>
-
     </select>
 
     <select id="selectObjConditionQuery" parameterType="com.metoo.nspm.dto.NspmProblemDTO" resultMap="Base_Result_Map">
@@ -70,6 +78,19 @@
             ${orderType}
         </if>
     </select>
+
+    <update id="update" parameterType="com.metoo.nspm.entity.zabbix.Problem">
+        update rsms_problem
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="affirm != null">
+                affirm = #{affirm}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
 
 
     <update id="truncateTable">

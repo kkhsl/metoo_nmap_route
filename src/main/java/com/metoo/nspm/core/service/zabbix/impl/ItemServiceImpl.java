@@ -2761,7 +2761,153 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-//    @Override
+    @Override
+    public List gatherSlotNumber(String ip) {
+        Map params = new HashMap();
+        params.put("ip", ip);
+        params.put("obj", "device");
+        List<Item> itemTags = this.itemMapper.selectItemTagByIpAndObj(params);
+        List devices = new ArrayList();
+        if(itemTags.size() > 0){
+            itemTags.stream().forEach(item -> {
+                List<ItemTag> tags = item.getItemTags();
+                Map<String, String> map = new HashMap();
+                if (tags != null && tags.size() > 0) {
+                    for (ItemTag tag : tags) {
+                        String value = tag.getValue();
+                        if (tag.getTag().equals("slotid")) {
+                            map.put("slotid", value);
+                        }
+                        if (tag.getTag().equals("board")) {
+                            map.put("board", value);
+                        }
+                        if (tag.getTag().equals("devicestate")) {
+                            map.put("devicestate", value);
+                        }
+                        if (tag.getTag().equals("hardver")) {
+                            map.put("hardver", value);
+                        }
+                        if (tag.getTag().equals("softver")) {
+                            map.put("softver", value);
+                        }
+                        if (tag.getTag().equals("slotnumber")) {
+                            map.put("slotnumber", value);
+                        }
+                    }
+//                    if(map.get("slotnumber") == null &&  map.get("slotid") != null){
+//                        map.put("slotnumber", map.get("slotid"));
+//                    }
+//                    if(map.get("slotid") == null){
+//                        int num = Integer.parseInt(map.get("slotid"));
+//                        StringBuffer sb = new StringBuffer();
+//                        for (int i = 0; i < num; i++) {
+//                            if(i+1 == num){
+//                                sb.append(i);
+//                            }else{
+//                                sb.append(i).append(",");
+//                            }
+//                        }
+//                        map.put("slotid", sb.toString());
+//                    }
+                    devices.add(map);
+                }
+            });
+        }
+        return devices;
+    }
+
+    @Override
+    public List gatherPower(String ip) {
+        Map params = new HashMap();
+        params.put("ip", ip);
+        params.put("obj", "power");
+        List<Item> itemTags = this.itemMapper.selectItemTagByIpAndObj(params);
+        List list = new ArrayList();
+        if(itemTags.size() > 0){
+            itemTags.stream().forEach(item -> {
+                List<ItemTag> tags = item.getItemTags();
+                Map<String, String> map = new HashMap();
+                if (tags != null && tags.size() > 0) {
+                    for (ItemTag tag : tags) {
+                        String value = tag.getValue();
+                        if (tag.getTag().equals("powerindex")) {
+                            map.put("powerindex", value);
+                        }
+                        if (tag.getTag().equals("powerstate")) {
+                            switch (value){
+                                case "1":
+                                    value = "active";
+                                    break;
+                                case "2":
+                                    value = "deactive";
+                                    break;
+                                case "3":
+                                    value = "not-install";
+                                    break;
+                                case "4":
+                                    value = "unsupport";
+                                    break;
+                                default:
+                                    value = null;
+                                    break;
+                            }
+                            map.put("powerstate", value);
+                        }
+                    }
+                    list.add(map);
+                }
+            });
+        }
+        return list;
+    }
+
+    @Override
+    public List gatherFan(String ip) {
+        Map params = new HashMap();
+        params.put("ip", ip);
+        params.put("obj", "fan");
+        List<Item> itemTags = this.itemMapper.selectItemTagByIpAndObj(params);
+        List list = new ArrayList();
+        if(itemTags.size() > 0){
+            itemTags.stream().forEach(item -> {
+                List<ItemTag> tags = item.getItemTags();
+                Map<String, String> map = new HashMap();
+                if (tags != null && tags.size() > 0) {
+                    for (ItemTag tag : tags) {
+                        String value = tag.getValue();
+                        if (tag.getTag().equals("fanindex")) {
+                            map.put("fanindex", value);
+                        }
+                        if (tag.getTag().equals("fanstate")) {
+                            switch (value){
+                                case "1":
+                                    value = "active";
+                                    break;
+                                case "2":
+                                    value = "deactive";
+                                    break;
+                                case "3":
+                                    value = "not-install";
+                                    break;
+                                case "4":
+                                    value = "unsupport";
+                                    break;
+                                default:
+                                    value = null;
+                                    break;
+                            }
+                            map.put("fanstate", value);
+                        }
+                    }
+                    list.add(map);
+                }
+            });
+        }
+        return list;
+    }
+
+
+//    @softver
 //    public void topologySyncToMac() {
 //        Map params = new HashMap();
 //        // 获取拓扑列表

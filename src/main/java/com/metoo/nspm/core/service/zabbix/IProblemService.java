@@ -10,9 +10,13 @@ import java.util.Map;
 
 public interface IProblemService {
 
+    Problem selectObjById(Long id);
+
     Page<Problem> selectConditionQuery(NspmProblemDTO dto);
 
     List<Problem> selectObjByMap(Map params);
+
+    int update(Problem instance);
 
     int selectCount(Map params);
 

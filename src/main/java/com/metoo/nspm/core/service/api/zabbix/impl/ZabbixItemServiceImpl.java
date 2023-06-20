@@ -812,6 +812,157 @@ public class ZabbixItemServiceImpl implements ZabbixItemService {
         }
     }
 
+//    @Override
+//    public void labelTheMac(Date time) {
+//        StopWatch watch = new StopWatch();
+//        watch.start();
+//        List list = new ArrayList();
+//        Map params = new HashMap();
+//        params.put("u", 1);
+//        List<MacTemp> macU = this.macTempService.getMacUS(params);
+//        List ulist = macU.stream().map(e -> e.setTag("U")).collect(Collectors.toList());
+//        if(ulist.size() > 0){
+//            this.macTempService.batchUpdate(ulist);
+//        }
+//        watch.stop();
+//        log.info("Mac-U 耗时：" + watch.getTime(TimeUnit.SECONDS) + "秒.");
+//
+//        watch.reset();
+//        watch.start();
+//        params.clear();
+//        params.put("s", 2);
+//        List<MacTemp> macS = this.macTempService.getMacUS(params);
+//        List listS = macS.stream().map(e -> e.setTag("S")).collect(Collectors.toList());
+//        if(listS.size() > 0){
+//            this.macTempService.batchUpdate(listS);
+//        }
+//        watch.stop();
+//        log.info("Mac-S 耗时：" + watch.getTime(TimeUnit.SECONDS) + "秒.");
+//
+//        watch.reset();
+//        watch.start();
+//        // 标记E|UE|UT(优化)
+//        params.clear();
+//        params.put("tag", "U");
+//        List<MacTemp> macU2 = this.macTempService.selectByMap(params);
+//        // 方式一:for
+//        for (MacTemp macTemp : macU2){
+//            params.clear();
+//            params.put("tag", "L");
+//            params.put("mac", macTemp.getMac());
+//            params.put("unUuid", macTemp.getUuid());// 改为使用Uuid
+//            List<MacTemp> macs = this.macTempService.selectByMap(params);// 只有一个
+//            if(macs.size() > 0){
+//                macs.stream().findAny().map(e ->
+//                        macTemp.setTag("E")
+//                                .setRemoteDevice(e.getDeviceName())
+//                                .setRemoteUuid(e.getUuid())
+//                                .setDeviceIp(e.getDeviceIp())
+//                                .setRemoteDeviceType(e.getDeviceType())).get();
+//                list.add(macTemp);
+//                continue;
+//            }else{
+//                macTemp.setTag("UT");
+//                list.add(macTemp);
+//            }
+//        }
+//        if(list.size() > 0){
+//            this.macTempService.batchUpdate(list);
+//            list.clear();
+//        }
+//        watch.stop();
+//        System.out.println("Mac-U-E采集耗时：" + watch.getTime(TimeUnit.SECONDS) + " 秒.");
+//
+//        watch.reset();
+//        watch.start();
+//        // 标记E|RT|UE
+//        params.clear();
+//        params.put("tag", "S");
+//        List<MacTemp> macSL = this.macTempService.selectByMap(params);
+//        macSL.stream().forEach(item -> {
+//            // 查询arp
+//            if(org.apache.commons.lang3.StringUtils.isNotEmpty(item.getMac())){
+//                params.clear();
+//                params.put("tag", "L");
+//                params.put("mac", item.getMac());
+//                params.put("unUuid", item.getUuid());
+//                List<MacTemp> macs = this.macTempService.selectByMap(params);
+//                if(macs.size() > 0){
+//                    MacTemp instance = macs.get(0);
+//                    item.setTag("E");
+//                    item.setRemoteDevice(instance.getDeviceName());
+//                    item.setRemoteUuid(instance.getUuid());
+//                    item.setRemoteDeviceIp(instance.getDeviceIp());
+//                    item.setRemoteDeviceType(instance.getDeviceType());
+//                }
+//            }
+//        });
+//        if(macSL.size() > 0){
+//            this.macTempService.batchUpdate(macSL);
+//        }
+//        watch.stop();
+//        System.out.println("Mac-S-E采集耗时：" +  watch.getTime(TimeUnit.SECONDS) + " 秒.");
+//
+//        watch.reset();
+//        watch.start();
+//        // RT
+//        params.clear();
+//        params.put("tag", "S");
+//        List<MacTemp> residueS = this.macTempService.selectTagByMap(params);
+//        residueS.stream().map(e ->
+//                e.setTag("RT")
+//        ).collect(Collectors.toList());
+//        if(residueS.size() > 0){
+//            this.macTempService.batchUpdate(residueS);
+//        }
+//        watch.stop();
+//        System.out.println("Mac-RT采集耗时：" +  watch.getTime(TimeUnit.SECONDS) + " 秒.");
+//
+//        watch.reset();
+//        watch.start();
+//        // mac|arp联查
+//        // 标记为UT且有ip地址的，标记为DT
+//        params.clear();
+//        List<MacTemp> macDT = this.macTempService.directTerminal(params);
+//        if(macDT.size() > 0){
+//            this.macTempService.batchUpdate(macDT);
+//        }
+//        watch.stop();
+//
+//
+//        // RT与进行DT比较，RT中有但是DT中没有的条目改为URT
+//
+//        // 查所有URT，根据RT关联的端口查DE条目，对端设备为HUB的，手工增加mac条目
+//        params.clear();
+//        params.put("tag", "RT");
+//        List<MacTemp> rts = this.macTempService.selectByMap(params);
+//        if(rts.size() > 0){
+//            rts.stream().forEach(e ->{
+//                params.clear();
+//                params.put("deviceName", e.getDeviceName());
+//                params.put("interfaceName", e.getInterfaceName());
+//                params.put("tag", "DE");
+//                params.put("remoteDeviceType", "HUB");
+//                List<MacTemp> macTemps = this.macTempService.selectByMap(params);
+//                for(MacTemp macTemp : macTemps){
+//                    if(Strings.isNotBlank(e.getIp())){
+//                        MacTemp instance = new MacTemp();
+//                        instance.setAddTime(time);
+//                        instance.setDeviceName(macTemp.getRemoteDevice());
+//                        instance.setUuid(macTemp.getRemoteUuid());
+//                        instance.setInterfaceName("PortN");
+//                        instance.setMac(e.getMac());
+//                        instance.setIp(e.getIp());
+//                        instance.setTag("DT");
+//                        this.macTempService.save(instance);
+//                    }
+//                }
+//            });
+//        }
+//        System.out.println("Mac-DT采集耗时：" + watch.getTime(TimeUnit.SECONDS) + " 秒.");
+//
+//    }
+
     @Override
     public void labelTheMac(Date time) {
         StopWatch watch = new StopWatch();

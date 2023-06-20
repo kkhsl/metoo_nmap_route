@@ -290,40 +290,124 @@
               </#if>
               <#if data.online == 1>
 
-               <h3 style="margin-top: 20px;">板卡信息</h3>
-                  <table class="devTable">
-                      <thead>
-                      <!-- 表格标题 -->
-                      <tr class="">
-                          <th>槽位</th>
-                          <th>板卡型号</th>
-                          <th>CPU利用率</th>
-                          <th>内存利用率</th>
-                          <th>温度</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      <!-- 表格内容  循环tr  内容与标题对应-->
-                      <tr>
-                          <td>2016-05-02</td>
-                          <td>2016-05-02</td>
-                          <td>2016-05-02</td>
-                          <td>2016-05-02</td>
-                      </tr>
-                      <tr>
-                          <td>2016-05-02</td>
-                          <td>2016-05-02</td>
-                          <td>2016-05-02</td>
-                          <td>2016-05-02</td>
-                      </tr>
-                      <tr>
-                          <td>2016-05-02</td>
-                          <td>2016-05-02</td>
-                          <td>2016-05-02</td>
-                          <td>2016-05-02</td>
-                      </tr>
-                      </tbody>
-                  </table>
+              <h3 style="margin-top: 20px;">风扇信息</h3>
+              <table class="devTable">
+                  <thead>
+                  <!-- 表格标题 -->
+                  <tr class="">
+                      <th>所在槽位</th>
+                      <th>风扇索引</th>
+                      <th>状态</th>
+                      <th>转速</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <#if data.fans!?size gt 0>
+                      <#list data.fans as fan>
+                          <!-- 表格内容  循环tr  内容与标题对应-->
+                          <tr>
+                              <td></td>
+                              <td>${fan.fanindex!}</td>
+                              <td>${fan.fanstate!}</td>
+                              <td></td>
+                          </tr>
+                      </#list>
+                  <#else>
+                       <tr>
+                           <td>&nbsp;</td>
+                           <td></td>
+                           <td></td>
+                           <td></td>
+                       </tr>
+                  </#if>
+                  </tbody>
+              </table>
+
+              <h3 style="margin-top: 20px;">电源信息</h3>
+              <table class="devTable">
+                  <thead>
+                  <!-- 表格标题 -->
+                  <tr class="">
+                      <th>所在槽位</th>
+                      <th>电源索引</th>
+                      <th>状态</th>
+                      <th>电源容量(w)</th>
+                      <th>INPUT(W)</th>
+                      <th>OUTPUT(W)</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                   <#if data.powers!?size gt 0>
+                      <#list data.powers as power>
+                          <!-- 表格内容  循环tr  内容与标题对应-->
+                          <tr>
+                              <td></td>
+                              <td>${power.powerindex!}</td>
+                              <td>${power.powerstate!}</td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                          </tr>
+                      </#list>
+                   <#else>
+                           <tr>
+                               <td>&nbsp;</td>
+                               <td></td>
+                               <td></td>
+                               <td></td>
+                               <td></td>
+                               <td></td>
+                           </tr>
+                   </#if>
+                  </tbody>
+              </table>
+
+              <h3 style="margin-top: 20px;">板卡信息</h3>
+              <table class="devTable">
+                  <thead>
+                  <!-- 表格标题 -->
+                  <tr class="">
+                      <th>槽位号</th>
+                      <th>板卡型号</th>
+                      <th>板卡状态</th>
+                      <th>硬件版本</th>
+                      <th>软件版本</th>
+                      <th>CPU利用率</th>
+                      <th>内存利用率</th>
+                      <th>温度</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                 <#if data.slotNumbers!?size gt 0>
+                      <#list data.slotNumbers as slotNumber>
+                          <!-- 表格内容  循环tr  内容与标题对应-->
+                          <tr>
+                              <td>${slotNumber.slotid!}</td>
+                              <td>${slotNumber.board!}</td>
+                              <td>${slotNumber.devicestate!}</td>
+                              <td>${slotNumber.hardver!}</td>
+                              <td>${slotNumber.softver!}</td>
+                              <td>${slotNumber.iftype!}</td>
+                              <td>${slotNumber.ifspeed!}</td>
+                              <td>${slotNumber.ifreceived!}</td>
+                          </tr>
+                      </#list>
+                 <#else>
+                           <tr>
+                               <td>&nbsp;</td>
+                               <td></td>
+                               <td></td>
+                               <td></td>
+                               <td></td>
+                               <td></td>
+                               <td></td>
+                               <td></td>
+                           </tr>
+                 </#if>
+                  </tbody>
+              </table>
+
+
 
                   <h3 style="margin-top: 20px;">端口信息</h3>
                   <table class="devTable">

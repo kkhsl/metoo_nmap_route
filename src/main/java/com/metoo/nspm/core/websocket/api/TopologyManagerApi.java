@@ -68,7 +68,7 @@ public class TopologyManagerApi {
                     args.put("online", 1);
                     args.put("interfaceStatus", 1);
 //                    args.put("tag", "DT");
-                    args.put("tags", Arrays.asList("DT", "URT", "UDT"));
+                    args.put("tags", Arrays.asList("DT", "UDT"));
                     List<Terminal> terminals = this.terminalService.selectObjByMap(args);
                     terminals.stream().forEach(item -> {
                         String terminalIp = item.getIp();
@@ -104,7 +104,7 @@ public class TopologyManagerApi {
                 for (String item : list) {
                     args.clear();
                     args.put("uuid", item);
-                    args.put("tags", Arrays.asList("DT", "URT", "UDT"));
+                    args.put("tags", Arrays.asList("DT", "UDT"));
                     args.put("time", params.get("time"));
                     args.put("online", true);
                     args.put("interfaceStatus", 1);

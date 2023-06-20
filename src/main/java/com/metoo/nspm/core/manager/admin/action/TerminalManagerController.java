@@ -42,41 +42,46 @@ public class TerminalManagerController {
     private IVendorService vendorService;
     @Autowired
     private IProjectService projectService;
+    @Autowired
+    private INetworkElementService networkElementService;
 
     public static void main(String[] args) {
 
-        Supplier<Map<String, Integer>> supplier = () -> new HashMap<String, Integer>();
-        Map<String, Integer> map = supplier.get();
+//        Supplier<Map<String, Integer>> supplier = () -> new HashMap<String, Integer>();
+//        Map<String, Integer> map = supplier.get();
+//
+//        String vendor = "a";
+//        String model = "b";
+//        if(model.equals("1") && (vendor.equals("a") || vendor.equals("c")) ){
+//            System.out.println(1);
+//        }else{
+//            System.out.println(2);
+//        }
+//
+//        boolean a = true || false && false;
+//        System.out.println(a);
+//
+//        boolean b = false || true && false;
+//        System.out.println(b);
+//
+//        boolean c = false && false || true;
+//        System.out.println(c);
+//
+//        Map tag = new HashMap();
+//        tag.put("model","S1720");
+//        tag.put("vendor","HUaAWEI");
+//        if((tag.get("model").equals("S5735") || tag.get("model").equals("S1720"))&& tag.get("vendor").equals("HUAWEI")){
+//            System.out.println(3);
+//        }else{
+//            System.out.println(4);
+//        }
+//
+//        for (int i = 0; i < 10; i++) {
+//            System.out.print("");
+//        }
 
-        String vendor = "a";
-        String model = "b";
-        if(model.equals("1") && (vendor.equals("a") || vendor.equals("c")) ){
-            System.out.println(1);
-        }else{
-            System.out.println(2);
-        }
-
-        boolean a = true || false && false;
-        System.out.println(a);
-
-        boolean b = false || true && false;
-        System.out.println(b);
-
-        boolean c = false && false || true;
-        System.out.println(c);
-
-        Map tag = new HashMap();
-        tag.put("model","S1720");
-        tag.put("vendor","HUaAWEI");
-        if((tag.get("model").equals("S5735") || tag.get("model").equals("S1720"))&& tag.get("vendor").equals("HUAWEI")){
-            System.out.println(3);
-        }else{
-            System.out.println(4);
-        }
-
-        for (int i = 0; i < 10; i++) {
-            System.out.print("");
-        }
+        String aa = "Port0";
+        System.out.println(aa.replace("Port", ""));
     }
 
 //    @GetMapping("/{id}")
@@ -404,12 +409,39 @@ public class TerminalManagerController {
                 }
             }
         }
-
+        if(instance.getUuid() != null && !instance.getUuid().equals("")){
+            instance.setFrom(3);
+            instance.setInterfaceStatus(1);
+        }
+        if(instance.getInterfaceName() != null && !instance.getInterfaceName().equals("")){
+            instance.setIndex(instance.getInterfaceName().replace("Port", ""));
+        }
         int i = this.terminalService.save(instance);
         if(i >= 1){
             return ResponseUtil.ok();
         }
         return ResponseUtil.error();
+    }
+
+
+    // 终端修改上联设备
+    @PutMapping("/update")
+    public Object update(@RequestParam String uuid, String id){
+        NetworkElement networkElement  = this.networkElementService.selectAccessoryByUuid(uuid);
+        if(networkElement != null){
+            Terminal terminal = this.terminalService.selectObjById(Long.parseLong(id));
+            if(terminal != null){
+                terminal.setDeviceName(networkElement.getDeviceName());
+                terminal.setInterfaceName(networkElement.getInterfaceName());
+                terminal.setUuid(networkElement.getUuid());
+                int i = this.terminalService.update(terminal);
+                if(i >= 1){
+                    return ResponseUtil.ok();
+                }
+                return ResponseUtil.error();
+            }
+        }
+        return ResponseUtil.badArgument();
     }
 
     @ApiOperation("批量修改终端为资产终端")

@@ -16,10 +16,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RequestMapping("/admin/zabbix/problem")
 @RestController
@@ -53,6 +50,19 @@ public class ProblemManagerController {
 
         }
         return ResponseUtil.ok();
+    }
+
+    @PutMapping("/update")
+    public Object update(@RequestBody Problem problem){
+        Problem obj = this.problemService.selectObjById(problem.getId());
+        if(obj != null){
+            int i = this.problemService.update(problem);
+            if(i >= 1){
+                return ResponseUtil.ok();
+            }
+            return ResponseUtil.error();
+        }
+        return ResponseUtil.badArgument();
     }
 
 }

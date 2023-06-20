@@ -11,6 +11,7 @@ import com.metoo.nspm.core.service.nspm.INetworkElementService;
 import com.metoo.nspm.core.service.nspm.ITopologyService;
 import com.metoo.nspm.core.service.zabbix.IItemTagService;
 import com.metoo.nspm.core.service.zabbix.InterfaceService;
+import com.metoo.nspm.core.service.zabbix.ItemService;
 import com.metoo.nspm.core.utils.Global;
 import com.metoo.nspm.core.utils.freemarker.FreemarkerUtil;
 import com.metoo.nspm.core.utils.freemarker.PDFTemplateUtil;
@@ -74,6 +75,8 @@ public class FreemarkerController {
     private ITopologyService topologyService;
     @Autowired
     private ItemMapper itemMapper;
+    @Autowired
+    private ItemService itemService;
 
     public static void main(String[] args) {
         System.out.println(PortTypeEnums.codeOf(Integer.parseInt("12322")).getFiled());;
@@ -249,6 +252,15 @@ public class FreemarkerController {
                             }
                         });
                     }
+                    // 板卡信息
+                    List slotNumbers = this.itemService.gatherSlotNumber(e.getIp());
+                    data.put("slotNumbers", slotNumbers);
+
+                    List powers = this.itemService.gatherPower(e.getIp());
+                    data.put("powers", powers);
+
+                    List fans = this.itemService.gatherFan(e.getIp());
+                    data.put("fans", fans);
                 }
                 list.add(data);
             });
@@ -446,6 +458,14 @@ public class FreemarkerController {
                         }
                     });
                 }
+                // 板卡信息
+                List slotNumbers = this.itemService.gatherSlotNumber(e.getIp());
+                data.put("slotNumbers", slotNumbers);
+                List powers = this.itemService.gatherPower(e.getIp());
+                data.put("powers", powers);
+                List fans = this.itemService.gatherFan(e.getIp());
+                data.put("fans", fans);
+
             }
             list.add(data);
         });
