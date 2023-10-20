@@ -4,9 +4,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.junit.Test;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

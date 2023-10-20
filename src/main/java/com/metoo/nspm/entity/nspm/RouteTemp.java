@@ -25,6 +25,5 @@ public class RouteTemp extends IdEntity {
     @ApiModelProperty("设备Uuid")
     private String deviceUuid;
     private String proto;
-    private IpAddress ipAddress;
     private String routeproto;
 }

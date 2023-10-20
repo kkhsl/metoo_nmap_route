@@ -1,16 +1,12 @@
 package com.metoo.nspm.entity.nspm;
 
-import com.metoo.nspm.core.config.annotation.excel.ExcelImport;
 import com.metoo.nspm.core.domain.IdEntity;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,15 +16,11 @@ import java.util.Map;
 @NoArgsConstructor
 public class NetworkElement extends IdEntity {
 
-    @ExcelImport(value = "设备名称", unique = true, required = true)
+
     private String deviceName;
-    @ExcelImport("管理地址")
     private String ip;
-    @ExcelImport("厂商")
     private String vendorName;
-    @ExcelImport("类型")
     private String deviceTypeName;
-    @ExcelImport("用途描述")
     private String description;
     @ApiModelProperty("连接类型 0：ssh 1：telnet")
     private Integer connectType;
@@ -40,7 +32,6 @@ public class NetworkElement extends IdEntity {
     private Long groupId;
     private String groupName;
     private Long deviceTypeId;
-    private DeviceType deviceType;
     private Long vendorId;
     private Long userId;
     private String userName;
@@ -66,14 +57,6 @@ public class NetworkElement extends IdEntity {
 
     // 端口列表
     private List<Map> interfaces;
-
-    // 分组列表
-    private List<Group> groupList = new ArrayList<>();
-    // 终端列表
-    private List<Terminal> terminalList = new ArrayList<>();
-
-    // 附件列表
-    private List<Accessory> configList = new ArrayList<>();
 
     // cpu
     private String cpu;

@@ -31,6 +31,5 @@ public class Route extends IdEntity {
     private String deviceUuid;
     @ApiModelProperty("协议类型")
     private String proto;
-    private IpAddress ipAddress;
     private String cidr;
 }

@@ -49,10 +49,6 @@ public class Role extends IdEntity {
     private List<Long> res_ids;
 
     @JsonIgnore
-    @ApiModelProperty("角色对应的组")
-    private RoleGroup roleGroup;
-
-    @JsonIgnore
     @ApiModelProperty("角色路由：前端")
     private String url;
 

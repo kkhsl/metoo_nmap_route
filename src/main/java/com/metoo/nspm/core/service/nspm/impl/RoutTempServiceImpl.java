@@ -17,11 +17,6 @@ public class RoutTempServiceImpl implements IRoutTempService {
     private RouteTempMapper routTempMapper;
 
     @Override
-    public RouteTemp selectObjById(Long id) {
-        return this.routTempMapper.selectObjById(id);
-    }
-
-    @Override
     public List<RouteTemp> selectObjByMap(Map params) {
         return this.routTempMapper.selectObjByMap(params);
     }
@@ -65,21 +60,5 @@ public class RoutTempServiceImpl implements IRoutTempService {
     public void truncateTable() {
         this.routTempMapper.truncateTable();
     }
-
-    @Override
-    public List<RouteTemp> queryDestDevice(Map params) {
-        return this.routTempMapper.queryDestDevice(params);
-    }
-
-    @Override
-    public RouteTemp selectDestDevice(Map params) {
-        return this.routTempMapper.selectDestDevice(params);
-    }
-
-    @Override
-    public List<RouteTemp> selectNextHopDevice(Map params) {
-        return this.routTempMapper.selectNextHopDevice(params);
-    }
-
 
 }

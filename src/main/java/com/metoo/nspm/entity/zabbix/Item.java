@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.ibatis.annotations.Arg;
 
 import java.util.ArrayList;
 import java.util.List;

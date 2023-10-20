@@ -3,23 +3,14 @@ package com.metoo.nspm;
 //import DataSourceConfig;
 //import NspmDataSourceConfig;
 //import TopologyDataSourceConfig;
-import com.metoo.nspm.core.service.nspm.ITopologyTokenService;
-import com.metoo.nspm.core.service.nspm.TestInitService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.freemarker.FreeMarkerProperties;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 
 /**
  * <p>

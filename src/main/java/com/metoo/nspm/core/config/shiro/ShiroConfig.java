@@ -1,20 +1,12 @@
 package com.metoo.nspm.core.config.shiro;
 
 //import com.metoo.nspm.core.config.global.LicenseFilter;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.metoo.nspm.core.jwt.util.JwtCredentialsMatcher;
-import com.metoo.nspm.core.jwt.util.MultiRealmAuthenticator;
+
+import com.metoo.nspm.core.config.redis.RedisManager;
 import com.metoo.nspm.core.config.shiro.filter.MyAccessControlFilter;
-import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
-import org.apache.shiro.authc.pam.AuthenticationStrategy;
-import org.apache.shiro.authc.pam.FirstSuccessfulStrategy;
-import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
-import org.apache.shiro.mgt.DefaultSubjectDAO;
 import org.apache.shiro.mgt.SessionStorageEvaluator;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
@@ -28,11 +20,6 @@ import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreato
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import javax.servlet.Filter;
 import java.util.HashMap;
@@ -122,7 +109,7 @@ public class ShiroConfig {
 
         //shiroFilterFactoryBean.setLoginUrl("/login.jsp");
         //shiroFilterFactoryBean.setLoginUrl("/buyer/login");
-          shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
+        shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         // sshiroFilterFactoryBean.setLoginUrl("/user/login"); // 导致不断重定向
 
 
@@ -175,8 +162,8 @@ public class ShiroConfig {
         // 开启缓存管理器
 //        myRealm.setCachingEnabled(true);// 开启全局缓存
         // 方式一：EhCache
-            // 只能实现本地缓存，如果应用服务器宕机，则缓存数据丢失；生产环境使用Redis-实现分布式缓存
-                // 缓存数据独立于应用服务器之外，提高数据安全性
+        // 只能实现本地缓存，如果应用服务器宕机，则缓存数据丢失；生产环境使用Redis-实现分布式缓存
+        // 缓存数据独立于应用服务器之外，提高数据安全性
 //        myRealm.setCacheManager(new EhCacheManager());// EhCache
 //////        方式二：Redis
 //        myRealm.setCacheManager(new RedisCacheManager());// RedisCacheManager
@@ -190,20 +177,20 @@ public class ShiroConfig {
     /**
      * 配置 ModularRealmAuthenticator
      */
-    @Bean
-    public ModularRealmAuthenticator authenticator() {
-        ModularRealmAuthenticator authenticator = new MultiRealmAuthenticator();
-        // 设置多 Realm的认证策略，默认 AtLeastOneSuccessfulStrategy
-        AuthenticationStrategy strategy = new FirstSuccessfulStrategy();
-        authenticator.setAuthenticationStrategy(strategy);
-        return authenticator;
-    }
+//    @Bean
+//    public ModularRealmAuthenticator authenticator() {
+//        ModularRealmAuthenticator authenticator = new MultiRealmAuthenticator();
+//        // 设置多 Realm的认证策略，默认 AtLeastOneSuccessfulStrategy
+//        AuthenticationStrategy strategy = new FirstSuccessfulStrategy();
+//        authenticator.setAuthenticationStrategy(strategy);
+//        return authenticator;
+//    }
 
     // 配置org.apache.shiro.web.session.mgt.DefaultWebSessionManager(shiro session的管理)
     @Bean("sessionManager")
     public DefaultWebSessionManager getDefaultSessionManager() {
         DefaultWebSessionManager defaultWebSessionManager = new DefaultWebSessionManager();
-       // defaultWebSessionManager.setGlobalSessionTimeout(1000 * 60 * 60 * 24*7);// 会话过期时间，单位：毫秒(在无操作时开始计时)
+        // defaultWebSessionManager.setGlobalSessionTimeout(1000 * 60 * 60 * 24*7);// 会话过期时间，单位：毫秒(在无操作时开始计时)
         defaultWebSessionManager.setGlobalSessionTimeout(-1000L);// -1000L,永不过期 1000 * 60 * 20
 //        defaultWebSessionManager.setGlobalSessionTimeout(1000 * 60);
 
@@ -211,8 +198,35 @@ public class ShiroConfig {
         defaultWebSessionManager.setSessionIdCookieEnabled(true);
         defaultWebSessionManager.setSessionIdUrlRewritingEnabled(false);// 移除自带的JSESSIONID，方式第二次打开浏览器是进行注销操作发生
 
+        defaultWebSessionManager.setSessionDAO(redisSessionDAO());
 
         return defaultWebSessionManager;
+    }
+
+    /**
+     * RedisSessionDAO shiro sessionDao层的实现 通过redis
+     * 使用的是shiro-redis开源插件
+     */
+    @Bean
+    public RedisSessionDao redisSessionDAO() {
+        RedisSessionDao redisSessionDAO = new RedisSessionDao();
+//        redisSessionDAO.setExpire(expire);//session会话过期时间，默认就是1800秒
+        redisSessionDAO.setRedisManager(redisManager());
+        return redisSessionDAO;
+    }
+
+    /** 配置shiro redisManager
+     * 使用的是shiro-redis开源插件
+     */
+    @Bean
+    public RedisManager redisManager() {
+        RedisManager redisManager = new RedisManager();
+//        redisManager.setHost(redisHost);
+//        redisManager.setPort(redisPort);
+//        redisManager.setTimeout(30000);//连接redis超时
+//        if(!StringUtils._isEmpty_(redisPassword))
+//            redisManager.setPassword(redisPassword);
+        return redisManager;
     }
 
 //    @Bean("sessionManager")
@@ -306,14 +320,14 @@ public class ShiroConfig {
      * Jwt配置，需实现Realm接口
      * @return
      */
-    @Bean
-    public JwtRealm jwtRealm(){
-        JwtRealm jwtRealm = new JwtRealm();
-        // 设置加密算法
-        CredentialsMatcher credentialsMatcher = new JwtCredentialsMatcher();
-        // 设置加密次数
-        jwtRealm.setCredentialsMatcher(credentialsMatcher);
-        return jwtRealm;
-    }
+//    @Bean
+//    public JwtRealm jwtRealm(){
+//        JwtRealm jwtRealm = new JwtRealm();
+//        // 设置加密算法
+//        CredentialsMatcher credentialsMatcher = new JwtCredentialsMatcher();
+//        // 设置加密次数
+//        jwtRealm.setCredentialsMatcher(credentialsMatcher);
+//        return jwtRealm;
+//    }
 
 }

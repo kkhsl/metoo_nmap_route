@@ -17,36 +17,6 @@ public interface ResMapper {
      */
     List<Res> findResByRoleId(Long id);
 
-    Res findObjByName(String name);
-
-    Res findObjByNameAndLevel(Map map);
-
-    List<Res> query();
-
-    List<Res> findPermissionByMap(Map map);
-
-    List<Res> findPermissionByJoin(Map map);
-
-    Res  findResUnitRoleByResId(Long id);
-
-    /**
-     * 根据权限ID查询权限对象
-     * @param id
-     * @return
-     */
-    Res selectPrimaryById(Long id);
-
-    List<Res> findResByResIds(List<Integer> ids);
-
-    Collection<String> findPermissionByUserId(Long id);
-
-    /**
-     * 保存一个系统资源
-     * @param instance
-     * @return
-     */
-    int save(Res instance);
-
     /**
      * 更新一个系统资源对象
      * @param instance

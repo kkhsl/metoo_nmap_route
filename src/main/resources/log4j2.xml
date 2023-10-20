@@ -14,7 +14,7 @@
         <!--192.168.5.101_nspm-->
         <!--<property name="log4j2.file.path">/opt/topology/service/nspm/logs</property>-->
         <!--192.168.5.101_nmap-->
-        <property name="log4j2.file.path">/opt/nmap/service/nmap/logs</property>
+        <property name="log4j2.file.path">/opt/nmap/service/route/logs</property>
 
     </properties>
 
@@ -38,7 +38,7 @@
               rollog-%d{yyyy-MM-dd}-%i.log：为文件命名规则：%i表示序号、从0开始，目的是为了让每一份文件名字不会重复
               -->
         <RollingFile name="rollingFile"
-                     fileName="${log4j2.file.path}/nmap.log"
+                     fileName="${log4j2.file.path}/route.log"
                      filepattern="${log4j2.file.path}/$${date:yyyy-MM-dd}/rollog-%d{yyyy-MM-dd}-%i.log"
                     >
             <patternLayout pattern="%d{yyyy-MM-dd-HH:mm}[%t] [%-5level] %logger{36} - %msg%n"/>

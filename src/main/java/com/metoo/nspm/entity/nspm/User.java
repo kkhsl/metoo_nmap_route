@@ -75,8 +75,6 @@ m
     @ApiModelProperty("角色集合")
     private List<Role> roles = new ArrayList<Role>();
 
-    @ApiModelProperty("角色组")
-    private List<RoleGroup> roleGroups = new ArrayList<RoleGroup>();
 
     @ApiModelProperty("组名称")
     private String groupName;

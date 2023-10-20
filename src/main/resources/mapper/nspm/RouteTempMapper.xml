@@ -24,13 +24,6 @@
         id, mask, mask_bit, INET_NTOA(destination) AS destination, cost, proto, flags, INET_NTOA(next_hop) next_hop, interface_name, device_name, device_uuid
     </sql>
 
-    <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
-        SELECT *
-        FROM rsms_route_temp
-        WHERE
-          id = #{id, jdbcType=BIGINT}
-    </select>
-
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
         SELECT
           <include refid="Base_Column_List" />
@@ -80,81 +73,6 @@
         <if test = "orderType != null and orderType != ''">
             ${orderType}
         </if>
-    </select>
-
-    <select id="queryDestDevice" parameterType="java.util.Map" resultMap="Base_Result_Map">
-        SELECT
-             id, INET_NTOA(destination) destination, mask,
-             cost, proto, flags, INET_NTOA(next_hop) next_hop, interface_name, device_name, device_uuid
-            FROM rsms_route_temp
-            where
-                    (destination, mask) = (
-                            SELECT
-                                destination, mask
-                            FROM
-                            rsms_route_temp
-                            WHERE
-                                destination
-                            BETWEEN
-                                #{network}
-                            AND
-                                #{broadcast}
-                            AND
-                                device_name = #{deviceName}
-                            ORDER BY mask
-                            DESC
-                            LIMIT 1
-                            )
-                 AND
-                     device_name = #{deviceName}
-
-
-    </select>
-
-    <select id="selectDestDevice" parameterType="java.util.Map" resultMap="Base_Result_Map">
-        SELECT
-         destination, mask
-        FROM
-        rsms_route_temp
-        <where>
-            <if test="network != null and broadcast != null">
-                destination
-                 BETWEEN
-                    #{network}
-                AND
-                    #{broadcast}
-            </if>
-            <if test = "deviceName != null">
-                AND device_name = #{deviceName}
-            </if>
-            <if test = "destination != null">
-                AND destination = #{destination}
-            </if>
-            <if test = "mask != null">
-                AND mask = #{mask}
-            </if>
-        </where>
-        ORDER BY mask
-        DESC
-        LIMIT 1
-    </select>
-
-    <select id="selectNextHopDevice" parameterType="java.util.Map" resultMap="Base_Result_Map">
-        SELECT
-          id, cost, proto, flags, INET_NTOA(next_hop) next_hop, interface_name, device_name, device_uuid
-        FROM
-        rsms_route_temp
-        <where>
-            <if test = "deviceName != null">
-                AND device_name = #{deviceName}
-            </if>
-            <if test = "destination != null">
-                AND destination = #{destination}
-            </if>
-            <if test = "mask != null">
-                AND mask = #{mask}
-            </if>
-        </where>
     </select>
 
     <insert id="save" parameterType="com.metoo.nspm.entity.nspm.RouteTemp">

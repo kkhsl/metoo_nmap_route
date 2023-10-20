@@ -1,7 +1,5 @@
 package com.metoo.nspm.core.utils.network;
 
-import com.alibaba.fastjson.JSONObject;
-import com.metoo.nspm.entity.nspm.Arp;
 import com.github.pagehelper.util.StringUtil;
 import org.junit.Test;
 import org.springframework.stereotype.Component;
@@ -328,41 +326,6 @@ public class IpV4Util {
 //
 //        return ips;
 //    }
-
-    public static SortedSet sortIp(List<Arp> arps){
-        Comparator<Arp> ipComparator = new Comparator<Arp>() {
-            @Override
-            public int compare(Arp obj1, Arp obj2) {
-                Long ip1 = Long.parseLong(obj1.getIp());
-                Long ip2 = Long.parseLong(obj2.getIp());
-                return (ip1).compareTo((ip2));
-            }
-        };
-        SortedSet<Arp> arpsets = new TreeSet<Arp>(ipComparator);
-        for (Arp arp : arps){
-            arpsets.add(arp);
-        }
-
-        return arpsets;
-    }
-
-
-    public static SortedSet sort(List<Arp> arps){
-        Comparator<Arp> ipComparator = new Comparator<Arp>() {
-            @Override
-            public int compare(Arp obj1, Arp obj2) {
-                String ip1 = obj1.getIp();
-                String ip2 = obj2.getIp();
-                return toDecimalism(ip1).compareTo(toDecimalism(ip2));
-            }
-        };
-        SortedSet<Arp> arpsets = new TreeSet<Arp>(ipComparator);
-        for (Arp arp : arps){
-            arpsets.add(arp);
-        }
-
-        return arpsets;
-    }
 
     // ip地址排序
     @Test

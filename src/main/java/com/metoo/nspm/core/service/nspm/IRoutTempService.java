@@ -7,7 +7,6 @@ import java.util.Map;
 
 public interface IRoutTempService {
 
-    RouteTemp selectObjById(Long id);
 
     List<RouteTemp> selectObjByMap(Map params);
 
@@ -19,9 +18,4 @@ public interface IRoutTempService {
 
     void truncateTable();
 
-    List<RouteTemp> queryDestDevice(Map params);
-
-    RouteTemp selectDestDevice(Map params);
-
-    List<RouteTemp> selectNextHopDevice(Map params);
 }

@@ -6,13 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Problem  extends IdEntity {
+public class Problem extends IdEntity {
 
     // 时间问题 采集时间、zabbix problem生成时间、问题解决时间。需要修改 后面两种记录时间戳。前端需同时修改
     private Integer objectid;

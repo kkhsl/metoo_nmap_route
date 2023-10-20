@@ -1,6 +1,5 @@
 package com.metoo.nspm.core.manager.zabbix.tools;
 
-import com.alibaba.fastjson.JSONObject;
 import com.metoo.nspm.core.service.zabbix.InterfaceService;
 import com.metoo.nspm.entity.zabbix.Interface;
 import org.springframework.beans.factory.annotation.Autowired;
